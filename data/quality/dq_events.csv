@@ -1,0 +1,90 @@
+run_id,source,record_key,rule_id,dimension,action,detail
+20261025T064435Z,asx200,2026-10-23,DQ02,uniqueness,reject,DQ02: second bar for 2026-10-23 stamped 16:53 (live/partial bar)
+20261025T064435Z,asx200,2026-06-29,DQ03,completeness,flag,volume=0
+20261025T064435Z,au10y,2013-08-05,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2013-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2014-08-04,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2014-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2015-08-03,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2015-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2016-08-01,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2016-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2017-08-07,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2017-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2018-08-06,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2018-10-01,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2019-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2020-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2021-08-02,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2021-10-04,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2022-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2023-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2024-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2025-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2026-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064435Z,au10y,2013-06-24,DQ05,accuracy,flag,move +28.2 bp
+20261025T064435Z,au10y,2016-11-10,DQ05,accuracy,flag,move +28.0 bp
+20261025T064435Z,au10y,2020-03-19,DQ05,accuracy,flag,move +27.2 bp
+20261025T064435Z,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
+20261025T064435Z,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
+20261025T064435Z,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp
+20261025T064439Z-sim429,asx200,fetch,DQ06,timeliness,alert,gave up after 4 attempts; kept last good load (data/raw/asx200/2026-10-25/20261025T064435Z.json)
+20261025T064448Z-simlate,asx200,2026-10-23,DQ02,uniqueness,reject,DQ02: second bar for 2026-10-23 stamped 16:53 (live/partial bar)
+20261025T064448Z-simlate,au10y,2013-08-05,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2013-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2014-08-04,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2014-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2015-08-03,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2015-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2016-08-01,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2016-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2017-08-07,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2017-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2018-08-06,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2018-10-01,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2019-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2020-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2021-08-02,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2021-10-04,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2022-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2023-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2024-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2025-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2026-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064448Z-simlate,au10y,2013-06-24,DQ05,accuracy,flag,move +28.2 bp
+20261025T064448Z-simlate,au10y,2016-11-10,DQ05,accuracy,flag,move +28.0 bp
+20261025T064448Z-simlate,au10y,2020-03-19,DQ05,accuracy,flag,move +27.2 bp
+20261025T064448Z-simlate,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
+20261025T064448Z-simlate,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
+20261025T064448Z-simlate,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp
+20261025T064448Z-simlate,au10y,release,DQ06,timeliness,alert,"expected data through 2026-10-21, received through 2026-10-14"
+20261025T064453Z-simschema,asx200,2026-10-23,DQ02,uniqueness,reject,DQ02: second bar for 2026-10-23 stamped 16:53 (live/partial bar)
+20261025T064453Z-simschema,au10y,file,DQ07,consistency,stop,series FCMYGBAG10D not found in the Series ID row
+20261025T064506Z,asx200,2026-10-23,DQ02,uniqueness,reject,DQ02: second bar for 2026-10-23 stamped 16:53 (live/partial bar)
+20261025T064506Z,au10y,2013-08-05,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2013-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2014-08-04,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2014-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2015-08-03,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2015-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2016-08-01,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2016-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2017-08-07,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2017-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2018-08-06,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2018-10-01,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2019-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2020-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2021-08-02,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2021-10-04,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2022-10-03,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2023-10-02,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2024-10-07,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2025-10-06,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2026-10-05,DQ04,completeness,flag,no yield published for this date
+20261025T064506Z,au10y,2013-06-24,DQ05,accuracy,flag,move +28.2 bp
+20261025T064506Z,au10y,2016-11-10,DQ05,accuracy,flag,move +28.0 bp
+20261025T064506Z,au10y,2020-03-19,DQ05,accuracy,flag,move +27.2 bp
+20261025T064506Z,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
+20261025T064506Z,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
+20261025T064506Z,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp

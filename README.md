@@ -2,7 +2,7 @@
 
 BUSA3022 Managing Analytics and Algorithmic Systems — Assessment 2, Analytics Lead Case Study (Really Big Bank, post-trade team).
 
-> **Status:** scaffold. Pipeline, curation and dashboard proofs of concept are being built in the open through pull requests.
+> **Status:** Part 1 pipeline built (scheduled ingestion, quality log, failure handling). Curation and dashboard proofs of concept are next.
 
 ## The business question
 
@@ -36,9 +36,11 @@ docs/         Charter, metric requirements, runbook, style guide, AI log
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pytest -q
+python -m pipeline.run                   # Part 1: download, check and store both sources
+python -m pipeline.run --simulate late   # demo a failure: also 429 or schema
 ```
 
-Pipeline commands will be added as each proof of concept lands.
+Read the result in `data/quality/last_run_summary.md`. The full guide is [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 
 ## Team and AI use
 
