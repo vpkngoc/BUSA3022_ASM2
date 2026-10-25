@@ -1,0 +1,13 @@
+{
+  "source": "asx200",
+  "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EAXJO?range=2y&interval=1d",
+  "params": {
+    "range": "2y",
+    "interval": "1d"
+  },
+  "run_id": "20261025T064435Z",
+  "fetched_at_utc": "2026-10-25T06:44:35Z",
+  "bytes": 45706,
+  "sha256": "bd1d068e534546e84f380b693e5327f38aa9719a1aaf10b3e189478cfafca99a",
+  "path": "data/raw/asx200/2026-10-25/20261025T064435Z.json"
+}

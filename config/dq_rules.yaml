@@ -3,13 +3,13 @@
 rules:
   - id: DQ01
     dimension: interpretability
-    source: asx200
-    check: timestamp parses and its Sydney date is a weekday
+    source: both
+    check: date or timestamp parses (ASX Sydney date is a weekday; F2 value is numeric)
     action: reject
   - id: DQ02
     dimension: uniqueness
-    source: asx200
-    check: one bar per Sydney trading date (live partial bar quarantined)
+    source: both
+    check: one record per Sydney date (ASX live partial bar quarantined)
     action: reject
   - id: DQ03
     dimension: completeness
