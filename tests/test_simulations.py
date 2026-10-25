@@ -19,6 +19,7 @@ def sandbox(tmp_path, monkeypatch):
     raw, curated, quality = tmp_path / "raw", tmp_path / "curated", tmp_path / "quality"
     for mod in (store, run):
         monkeypatch.setattr(mod, "QUALITY", quality, raising=False)
+        monkeypatch.setattr(mod, "QUARANTINE", tmp_path / "quarantine", raising=False)
     monkeypatch.setattr(store, "RAW", raw)
     monkeypatch.setattr(store, "CURATED", curated)
     snap = raw / "au10y" / "2026-10-25"
