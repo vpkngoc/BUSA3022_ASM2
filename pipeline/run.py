@@ -40,7 +40,17 @@ class _RateLimited:
         r.headers["Retry-After"] = "1"
         return r
 
-
+def _stop_load(row, run_id, source, content, ext, exc):
+    """Schema guard (DQ07): log the event, quarantine the snapshot, load nothing."""
+    q = QUARANTINE / f"{run_id}_{source}_snapshot.{ext}"
+    q.parent.mkdir(parents=True, exist_ok=True)
+    q.write_bytes(content)
+    rule = RULES["DQ07"]
+    store.log_events([{"run_id": run_id, "source": source, "record_key": "file", "rule_id": "DQ07",
+                       "dimension": rule["dimension"], "action": rule["action"], "detail": str(exc)}])
+    row.update(status="stopped", detail=f"DQ07 schema guard: {exc}",
+               quarantine_path=str(q.relative_to(QUARANTINE.parent.parent)))
+    return row
 def _say(msg: str) -> None:
     print(msg, flush=True)
 
@@ -79,7 +89,10 @@ def run_asx(cfg, run_id, now, as_of, simulate, session) -> dict:
     raw_path = "" if simulate != "none" else store.write_raw(
         "asx200", run_id, res.content, "json", now, {"source": "asx200", "url": res.url, "params": params})
     row["raw_path"] = str(raw_path)
-    df, _ = parse_chart(res.content)
+    try:
+        df, _ = parse_chart(res.content)
+    except SchemaError as exc:   # the provider changed the format: stop, log, quarantine
+        return _stop_load(row, run_id, "asx200", res.content, "json", exc)
     result = validate_asx(df, run_id, cfg["exchange_timezone"])
     row.update(result.counts(), status="ok",
                received_through=result.clean.trade_date_syd.max() if len(result.clean) else "")
