@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .config import CURATED, QUALITY, RAW, SYD
+from .config import CURATED, QUALITY, QUARANTINE, RAW, SYD
 from .release_calendar import release_covering
 
 
@@ -118,7 +118,7 @@ def log_events(events: list[dict]) -> None:
 def write_quarantine(run_id: str, source: str, df: pd.DataFrame) -> str:
     if df.empty:
         return ""
-    path = QUALITY / "quarantine" / f"{run_id}_{source}.csv"
+    path = QUARANTINE / f"{run_id}_{source}.csv"
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False)
     return str(path.relative_to(QUALITY.parent.parent))

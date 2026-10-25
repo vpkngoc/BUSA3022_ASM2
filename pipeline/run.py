@@ -24,7 +24,7 @@ import pandas as pd
 import requests
 
 from . import store
-from .config import QUALITY, SYD, sources
+from .config import QUALITY, QUARANTINE, SYD, sources
 from .http import FetchError, fetch
 from .ingest_rba_f2 import SchemaError, parse_f2
 from .ingest_yahoo import parse_chart
@@ -118,7 +118,7 @@ def run_f2(cfg, run_id, now, as_of, simulate, session) -> dict:
     try:
         df, info = parse_f2(content, cfg["series_id"], cfg["expected_units"])
     except SchemaError as exc:
-        q = QUALITY / "quarantine" / f"{run_id}_au10y_snapshot.csv"
+        q = QUARANTINE / f"{run_id}_au10y_snapshot.csv"
         q.parent.mkdir(parents=True, exist_ok=True)
         q.write_bytes(content)
         rule = RULES["DQ07"]

@@ -36,7 +36,15 @@ Open `data/quality/last_run_summary.md` (or the Actions run summary). For each s
 | **ok** | Loaded. `in = clean + quarantined` | Nothing |
 | **late** | F2 has not reached the date the release calendar expects | Nothing on the first day: the dashboard shows "as at". If it is still late on the next run, an issue opens; check the RBA site |
 | **stale** | The source could not be reached after 4 attempts (rate limit, timeout, or the site refusing access with HTTP 403); the last good load is kept | Re-run later. If the next real run is also stale, an issue opens; check the source in a browser |
-| **stopped** | The file no longer matches the data contract (series ID or units changed); nothing was loaded | Open the quarantined snapshot in `data/quality/quarantine/`, compare it with `config/sources.yaml`, and raise a PR to update the contract **only after** confirming the change with the RBA |
+| **stopped** | The file no longer matches the data contract (series ID or units changed); nothing was loaded | Open the quarantined snapshot in `data/quarantine/`, compare it with `config/sources.yaml`, and raise a PR to update the contract **only after** confirming the change with the RBA |
+
+**PASS / WARN / FAIL at a glance**
+
+| Run result on GitHub | Status in the summary | What it means |
+| --- | --- | --- |
+| PASS: green tick | ok | Everything loaded and reconciled |
+| WARN: green tick with a yellow warning | late or stale | Expected now and then; the dashboard shows "as at". No action on the first occurrence |
+| FAIL: red cross and a GitHub issue | stopped or failed, or late/stale on two runs in a row | Someone must act today: follow the row for that status above |
 
 ### Where things are
 
@@ -48,7 +56,7 @@ Open `data/quality/last_run_summary.md` (or the Actions run summary). For each s
 | `data/curated/au10y_vintages.csv` | Every new or revised yield and when we first saw it |
 | `data/quality/dq_run_log.csv` | One row per source per run: status, counts, expected vs received dates, fetch attempts |
 | `data/quality/dq_events.csv` | Every rule that fired, on which record, and why |
-| `data/quality/quarantine/` | Rejected rows (and stopped snapshots) with their reasons |
+| `data/quarantine/` | Rejected rows (and stopped snapshots) with their reasons |
 | `config/dq_rules.yaml` | The rules DQ01–DQ08 and what each one does |
 
 ### Demonstrate the failure handling

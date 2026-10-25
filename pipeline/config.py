@@ -10,6 +10,7 @@ DATA = ROOT / "data"
 RAW = DATA / "raw"
 CURATED = DATA / "curated"
 QUALITY = DATA / "quality"
+QUARANTINE = DATA / "quarantine"
 SYD = ZoneInfo("Australia/Sydney")
 
 
