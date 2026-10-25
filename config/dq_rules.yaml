@@ -1,0 +1,43 @@
+# Data quality rules. Every rule names a Wang & Strong (1996) dimension and exactly one action.
+# Actions: reject (quarantine with reason), flag (keep row, mark it), stop (halt the load), alert (notify owner).
+rules:
+  - id: DQ01
+    dimension: interpretability
+    source: asx200
+    check: timestamp parses and its Sydney date is a weekday
+    action: reject
+  - id: DQ02
+    dimension: uniqueness
+    source: asx200
+    check: one bar per Sydney trading date (live partial bar quarantined)
+    action: reject
+  - id: DQ03
+    dimension: completeness
+    source: asx200
+    check: volume greater than zero
+    action: flag
+  - id: DQ04
+    dimension: completeness
+    source: au10y
+    check: yield present on every ASX trading day
+    action: flag
+  - id: DQ05
+    dimension: accuracy
+    source: both
+    check: daily yield move within 25 bp and ASX move within 10 percent
+    action: flag
+  - id: DQ06
+    dimension: timeliness
+    source: au10y
+    check: received-through date at least the expected-through date of the latest release
+    action: alert
+  - id: DQ07
+    dimension: consistency
+    source: au10y
+    check: series ID and units present as contracted
+    action: stop
+  - id: DQ08
+    dimension: consistency
+    source: au10y
+    check: previously stored values unchanged in the new snapshot (revisions logged old to new)
+    action: flag

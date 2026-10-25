@@ -1,0 +1,26 @@
+# The two sources the brief allows. Selected by identifier, never by column position.
+asx200:
+  role: market_index
+  provider: Yahoo Finance
+  symbol: "^AXJO"
+  url: "https://query1.finance.yahoo.com/v8/finance/chart/%5EAXJO"
+  timestamp_kind: utc_instant
+  exchange_timezone: Australia/Sydney
+  cadence: daily
+  overlap_sessions: 10
+  user_agent_required: true
+
+au10y:
+  role: macro
+  provider: Reserve Bank of Australia
+  table: F2
+  series_id: FCMYGBAG10D
+  url: "https://www.rba.gov.au/statistics/tables/csv/f2-data.csv"
+  expected_units: "Per cent per annum"
+  timestamp_kind: sydney_business_date
+  date_format: "%d-%b-%Y"
+  cadence: weekly_release
+  release:
+    weekday: Friday
+    time_syd: "14:00"
+    covers_until_business_days_before: 2
