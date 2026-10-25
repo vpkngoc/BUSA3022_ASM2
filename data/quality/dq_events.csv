@@ -116,3 +116,4 @@ run_id,source,record_key,rule_id,dimension,action,detail
 20261025T072225Z,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
 20261025T072225Z,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
 20261025T072225Z,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp
+20261025T072634Z-simschema,asx200,2026-10-23,DQ02,uniqueness,reject,DQ02: second bar for 2026-10-23 stamped 16:53 (live/partial bar)
