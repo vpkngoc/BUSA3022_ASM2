@@ -56,7 +56,7 @@ def validate_asx(raw: pd.DataFrame, run_id: str, tz: str = "Australia/Sydney") -
 
     # DQ01 interpretability: timestamp parses, Sydney date is a weekday, a close exists
     bad_ts = ts.isna()
-    weekend = ~bad_ts & (local.dt.weekday >= 5)
+    weekend = ~bad_ts & (local.dt.day_of_week >= 5)
     no_close = ~bad_ts & ~weekend & df["close"].isna()
     df.loc[bad_ts, "reason"] = "DQ01: timestamp does not parse"
     df.loc[weekend, "reason"] = "DQ01: Sydney date falls on a weekend"
