@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import requests
 
 USER_AGENT = "Mozilla/5.0 (compatible; BUSA3022-student-pipeline/1.0)"
-RETRYABLE = {429, 500, 502, 503, 504}
+RETRYABLE = {403, 429, 500, 502, 503, 504}   # 403: bot protection on cloud runners is often transient
 
 
 class FetchError(Exception):
@@ -41,7 +41,8 @@ def fetch(url: str, params: dict | None = None, *, timeout: float = 20, retries:
           backoff: tuple[float, ...] = (2, 8, 30), session=None, sleep=time.sleep) -> FetchResult:
     """GET a URL; retry retryable failures; raise FetchError with the attempt log if all fail."""
     s = session or requests.Session()
-    headers = {"User-Agent": USER_AGENT}
+    headers = {"User-Agent": USER_AGENT, "Accept": "text/csv,application/json,text/plain,*/*",
+               "Accept-Language": "en-AU,en;q=0.9"}
     attempts: list[dict] = []
     for i in range(retries + 1):
         started = time.monotonic()

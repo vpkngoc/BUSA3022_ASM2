@@ -7,7 +7,8 @@
     python -m pipeline.run --as-of 2026-10-22T18:00+11:00   # evaluate the release clock at a past moment
 
 Simulated runs write to the quality log (marked simulated) but never change clean tables.
-Exit code 1 means a load was stopped or F2 has been late on two consecutive real runs; the
+Simulated 'late' and 'schema' runs replay the last good raw snapshot, so they never call a provider.
+Exit code 1 means a load was stopped, or a source was late or stale on two consecutive real runs; the
 scheduled workflow then opens a GitHub issue for the data owner.
 """
 from __future__ import annotations
@@ -55,6 +56,13 @@ def run_asx(cfg, run_id, now, as_of, simulate, session) -> dict:
     row = _base_row(run_id, now, as_of, simulate, "asx200")
     first = not (store.CURATED / "asx200_daily.csv").exists()
     params = {"range": "2y" if first else "1mo", "interval": "1d"}
+    replay = store.read_latest_raw("asx200", "json") if simulate in ("late", "schema") else None
+    if replay:
+        df, _ = parse_chart(replay[0])
+        result = validate_asx(df, run_id, cfg["exchange_timezone"])
+        row.update(result.counts(), status="ok", detail=f"simulation replayed {replay[1]}",
+                   received_through=result.clean.trade_date_syd.max() if len(result.clean) else "")
+        return row
     try:
         res = fetch(cfg["url"], params, session=_RateLimited() if simulate == "429" else session,
                     backoff=(1, 2, 4) if simulate == "429" else (2, 8, 30))
@@ -85,21 +93,26 @@ def run_f2(cfg, run_id, now, as_of, simulate, session) -> dict:
     row = _base_row(run_id, now, as_of, simulate, "au10y")
     exp = expected_through(as_of)
     row["expected_through"] = exp.isoformat()
-    try:
-        res = fetch(cfg["url"], session=_RateLimited() if simulate == "429" else session,
-                    backoff=(1, 2, 4) if simulate == "429" else (2, 8, 30))
-    except FetchError as exc:
-        row.update(status="stale", fetch_attempts=json.dumps(exc.attempts),
-                   detail=f"{exc}; kept last good load ({store.latest_raw('au10y', 'csv')})")
-        for a in exc.attempts:
-            _say(f"  au10y attempt {a['attempt']}: HTTP {a['http_status']} ({a['latency_ms']} ms)")
-        return row
-    row["fetch_attempts"] = json.dumps(res.attempts)
-    content = res.content
+    replay = store.read_latest_raw("au10y", "csv") if simulate in ("late", "schema") else None
+    if replay:
+        content, url = replay[0], replay[1]
+        row["detail"] = f"simulation replayed {replay[1]}"
+    else:
+        try:
+            res = fetch(cfg["url"], session=_RateLimited() if simulate == "429" else session,
+                        backoff=(1, 2, 4) if simulate == "429" else (2, 8, 30))
+        except FetchError as exc:
+            row.update(status="stale", fetch_attempts=json.dumps(exc.attempts),
+                       detail=f"{exc}; kept last good load ({store.latest_raw('au10y', 'csv')})")
+            for a in exc.attempts:
+                _say(f"  au10y attempt {a['attempt']}: HTTP {a['http_status']} ({a['latency_ms']} ms)")
+            return row
+        row["fetch_attempts"] = json.dumps(res.attempts)
+        content, url = res.content, res.url
     if simulate == "schema":   # the RBA renames the series: the contract no longer holds
         content = content.replace(cfg["series_id"].encode(), (cfg["series_id"] + "X").encode())
     raw_path = "" if simulate != "none" else store.write_raw(
-        "au10y", run_id, content, "csv", now, {"source": "au10y", "url": res.url})
+        "au10y", run_id, content, "csv", now, {"source": "au10y", "url": url})
     row["raw_path"] = str(raw_path)
     try:
         df, info = parse_f2(content, cfg["series_id"], cfg["expected_units"])
@@ -110,7 +123,7 @@ def run_f2(cfg, run_id, now, as_of, simulate, session) -> dict:
         rule = RULES["DQ07"]
         store.log_events([{"run_id": run_id, "source": "au10y", "record_key": "file", "rule_id": "DQ07",
                            "dimension": rule["dimension"], "action": rule["action"], "detail": str(exc)}])
-        row.update(status="stopped", detail=f"DQ07 schema guard: {exc}",
+        row.update(status="stopped", detail=f"DQ07 schema guard: {exc}" + (f" ({row['detail']})" if row["detail"] else ""),
                    quarantine_path=str(q.relative_to(QUALITY.parent.parent)))
         return row
     result = validate_f2(df, run_id)
@@ -121,7 +134,7 @@ def run_f2(cfg, run_id, now, as_of, simulate, session) -> dict:
         result.clean = clean
     received = clean.loc[clean.value_pct.notna(), "trade_date_syd"].max()
     row.update(result.counts(), received_through=received, status="ok",
-               detail=f"RBA publication date {info.get('publication_date')}")
+               detail="; ".join(x for x in (row["detail"], f"RBA publication date {info.get('publication_date')}") if x))
     if simulate == "late":
         row["detail"] += f"; simulated: the release covering dates after {cutoff} never arrived"
     events = list(result.events)
@@ -190,9 +203,9 @@ def main(argv=None) -> int:
     md = summary_markdown(rows, run_id)
     (QUALITY / "last_run_summary.md").write_text(md)
     stopped = any(r["status"] in ("stopped", "failed") for r in rows)
-    late_twice = any(r["source"] == "au10y" and r["status"] == "late" and r["previous_status"] == "late"
-                     and args.simulate == "none" for r in rows)
-    if stopped or late_twice:
+    repeated = any(r["status"] in ("late", "stale") and r["previous_status"] == r["status"]
+                   and args.simulate == "none" for r in rows)
+    if stopped or repeated:
         _say("ALERT: data owner action needed (see data/quality/last_run_summary.md)")
         return 1
     return 0

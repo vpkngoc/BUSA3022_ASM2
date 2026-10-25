@@ -36,6 +36,12 @@ def latest_raw(source: str, ext: str) -> Path | None:
     return files[-1].relative_to(RAW.parent.parent) if files else None
 
 
+def read_latest_raw(source: str, ext: str) -> tuple[bytes, str] | None:
+    """Bytes and repo-relative path of the newest raw snapshot (the 'last good load')."""
+    rel = latest_raw(source, ext)
+    return None if rel is None else ((RAW.parent.parent / rel).read_bytes(), str(rel))
+
+
 def append_csv(path: Path, df: pd.DataFrame) -> None:
     if df.empty:
         return
