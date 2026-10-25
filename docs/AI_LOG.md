@@ -57,3 +57,12 @@ The log supports three rubric points: a specific example of incorrect or incompl
 - How we found it: running the pipeline end to end, and reading the 429 demo's output path
 - Fix and follow-up: fixed in `pipeline/store.py` before PR #2 was opened
 - Lesson / guardrail added: run the whole pipeline from an empty state before review, not just the unit tests
+
+### 2026-10-25 — Yahoo schema change stopped the run but was not logged
+- Who noticed: Maika (requirement and test design); gap confirmed by her test failing in CI
+- Part: 1 (pipeline)
+- What the agent produced: a schema guard that logged a DQ07 event and quarantined the file for the RBA source, but only raised an error for the Yahoo source
+- What was wrong or incomplete: when Yahoo renamed "close", the load stopped, but no DQ07 event was written and no snapshot was quarantined, so the failure was not auditable from the quality log
+- How we found it: a human-written test (tests/test_schema_failure.py) required every schema failure to be stopped, logged and quarantined. It failed for Yahoo before any fix existed: [local result, e.g. "1 failed, 1 passed"]; CI red on PR #[n]
+- Fix and follow-up: Claude added _stop_load() and used it for Yahoo; the same test passed ([2 passed]; full suite [30 passed]); PR #[n]
+- Lesson / guardrail added: test AI-written error handling for observability (is it logged, quarantined, explained?), not only for whether it stops. Requirements are written by a person before the fix
