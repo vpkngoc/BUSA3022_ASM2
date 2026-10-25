@@ -61,7 +61,9 @@ python -m pipeline.run --simulate schema   # the RBA renames the series: load st
 
 Simulated runs are marked `simulated = True` in the log and never change the clean tables. The `late` and `schema` demos replay the last good raw snapshot already in the repo, so they behave the same every time and never call the RBA or Yahoo. The `429` demo uses a fake connection that always refuses.
 
-On GitHub: Actions → **ingest** → **Run workflow** → choose the scenario. `schema` should finish with a **red ✗** and open an issue titled "Pipeline alert"; close that issue as "simulated".
+On GitHub: Actions → **ingest** → **Run workflow** → choose the scenario. `schema` should finish with a **red ✗** and open an issue titled "Pipeline alert"; close that issue as "simulated". `late` should finish with a **green ✓ plus a yellow warning**: one late release is expected now and then, so it is shown, not escalated.
+
+**Escalation policy:** a broken data contract (*stopped*) alerts at once. A single *late* or *stale* run does not, because the dashboard already shows "as at" and an alert on every slow RBA release would teach people to ignore alerts. The same problem on two consecutive real runs opens an issue. This rule is tested in `tests/test_simulations.py`.
 
 ### Observed in production
 

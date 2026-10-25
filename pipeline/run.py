@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -202,13 +203,26 @@ def main(argv=None) -> int:
 
     md = summary_markdown(rows, run_id)
     (QUALITY / "last_run_summary.md").write_text(md)
-    stopped = any(r["status"] in ("stopped", "failed") for r in rows)
-    repeated = any(r["status"] in ("late", "stale") and r["previous_status"] == r["status"]
-                   and args.simulate == "none" for r in rows)
-    if stopped or repeated:
+    for r in rows:   # a yellow warning on the GitHub run page: visible, but not an alarm
+        if r["status"] in ("late", "stale") and os.environ.get("GITHUB_ACTIONS") == "true":
+            print(f"::warning title={r['source']} {r['status']}::{r['detail']}", flush=True)
+    if needs_alert(rows, args.simulate):
         _say("ALERT: data owner action needed (see data/quality/last_run_summary.md)")
         return 1
     return 0
+
+
+def needs_alert(rows: list[dict], simulate: str) -> bool:
+    """Escalation policy.
+
+    A broken contract or failed run alerts at once. A single late or stale run does not:
+    the dashboard already shows 'as at', and alerting on every slow RBA release would train
+    people to ignore alerts. The same problem on two consecutive *real* runs escalates.
+    """
+    if any(r["status"] in ("stopped", "failed") for r in rows):
+        return True
+    return simulate == "none" and any(
+        r["status"] in ("late", "stale") and r["previous_status"] == r["status"] for r in rows)
 
 
 if __name__ == "__main__":

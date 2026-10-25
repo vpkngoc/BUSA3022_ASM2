@@ -47,3 +47,21 @@ def test_late_simulation_reports_late_without_network(sandbox):
 def test_forbidden_is_retried_like_a_rate_limit():
     res = fetch("https://example.test", session=Fake([403, 403, 200]), sleep=lambda s: None)
     assert [a["http_status"] for a in res.attempts] == [403, 403, 200]
+
+
+# ---------------------------------------------------------------- escalation policy
+
+def rows(*pairs):
+    return [{"source": "au10y", "status": s, "previous_status": p} for s, p in pairs]
+
+
+@pytest.mark.parametrize("current, previous, simulate, alert", [
+    ("late", "ok", "none", False),       # first late release: show 'as at', no alarm
+    ("late", "late", "none", True),      # late twice in a row: escalate
+    ("stale", "stale", "none", True),    # unreachable twice in a row: escalate
+    ("late", "late", "late", False),     # demos never escalate
+    ("stopped", "ok", "schema", True),   # broken contract: alert at once, even in a demo
+    ("ok", "late", "none", False),
+])
+def test_escalation_policy(current, previous, simulate, alert):
+    assert run.needs_alert(rows((current, previous)), simulate) is alert
