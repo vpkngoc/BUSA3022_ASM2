@@ -16,7 +16,7 @@ RBA_DATE = "2026-10-21"     # the RBA date I checked
 # ---- my Excel results (type the numbers exactly as Excel shows them, 2 decimals is enough)
 MY_MA20_PTS = 8745.29                 # =AVERAGE(20 closes ending on ASX_DATE)
 MY_VOL20_ANN_PCT = 11.13798            # =STDEV.S(20 log returns ending on ASX_DATE)*SQRT(252)*100
-MY_YIELD_CHANGE_5OBS_BP = -3.60     # =(gityield on RBA_DATE - yield 5 valid rows earlier)*100
+MY_YIELD_CHANGE_5OBS_BP = -3.60     # =(yield on RBA_DATE - yield 5 valid rows earlier)*100
 
 
 def read(name):
@@ -42,3 +42,4 @@ def test_vol20_matches_my_excel():
 def test_yield_change_matches_my_excel():
     f2 = add_yield_change_5obs(read("au10y_daily.csv")).set_index("trade_date_syd")
     assert f2.loc[RBA_DATE, "yield_change_5obs_bp"] == pytest.approx(mine(MY_YIELD_CHANGE_5OBS_BP), abs=0.05)
+    

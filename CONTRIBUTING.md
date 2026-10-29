@@ -21,10 +21,10 @@ These rules apply equally to code written by people and code written by the AI a
 | Bad records | Never dropped silently: quarantine with a rule ID and reason |
 | Secrets | None needed today; if one is ever added it goes in GitHub Secrets, never in a file |
 | Metric changes | Version note in `docs/METRICS.md` and an entry in `CHANGELOG.md` |
-| Grain | The daily analytical dataset uses one row per completed ASX trading session, identified by trade_date_syd. Duplicate trading dates are not allowed. |
+| Grain | The daily analytical dataset keeps at most one row per ASX trading date. Completed sessions are used for completed-session metrics, while the current in-progress session may remain in the table with an explicit status flag. Duplicate trading dates are not allowed. |
 | Missing values | Missing source observations remain explicitly missing and are flagged. We do not silently fill or remove missing values simply to create a complete-looking series. |
 | Point in time | A value may only be used if it was available by the 6:00 pm Sydney review time. available_from_syd is retained so later RBA releases are not treated as if they were known earlier. |
-| Provisional data | An ASX bar is treated as provisional while the trading session is still in progress. Rows flagged in_progress are excluded from MA20, volatility and other completed-session metrics. |
+| Provisional data | `provisional` and `in_progress` are treated differently. A `provisional` row represents a completed trading session whose close is usable even if another field, such as volume, is not yet final. An `in_progress` row represents a session that is still trading and is excluded from MA20, volatility and other completed-session metrics until the session closes. |
 | Enforcement | These modelling rules are enforced through automated tests, including tests/test_serve_contract.py, as well as peer review before changes are merged. Documentation alone is not treated as sufficient control. |
 
 ## Recording AI errors

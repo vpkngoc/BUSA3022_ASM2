@@ -8,6 +8,9 @@
 - New RBA values are available from the file's publication time, not the download time (scheduled runs started 6–7 hours late on 26–28 Oct).
 - Data dictionary; serve-table contract tests enforce the modelling standards.
 
+## 2026-10-29 — Part 2 metric specification v1.1
+- Clarified the 6:00 pm Sydney review time, sample-standard-deviation convention for realised volatility, 0.1 bp display rounding for yield change, completed-session treatment, and benchmark interpretation. Confirmed that AI-assisted transformation code must follow the committed human-approved specification.
+
 ## 2026-10-25 (Part 1 fixes)
 - `late` and `schema` simulations replay the last good raw snapshot instead of calling the provider (the first `schema` demo on GitHub never reached the schema check because the RBA returned HTTP 403).
 - HTTP 403 is retried with backoff; two consecutive *stale* real runs now raise an alert, like two *late* runs.
@@ -19,30 +22,3 @@
 
 ## 2026-10-25
 - Repository scaffold: layout, charter, contributing rules, PR template, CI, source and data quality configuration, metric requirements template.
-
-## 29 October 2026 — Part 2 metric specification v1.1:
-Clarified the 6:00 pm Sydney review point, sample-standard-deviation convention for realised volatility, 0.1 bp display rounding for yield change, completed-session treatment, and metric benchmark interpretation. Confirmed that AI-assisted transformation code must follow the committed human-approved specification.
-
----
-
-## `docs/AI_LOG.md` — completed schema-change incident
-
-### Yahoo schema change — validation stopped before logging and quarantine
-
-- **What the AI-assisted implementation initially did:**  
-  The initial parser correctly detected that the expected Yahoo `close` field was missing and raised a `SchemaError`.
-
-- **What was incomplete:**  
-  Although the schema change was detected, the exception occurred before the failure was recorded and quarantined under the required data-quality control. The pipeline therefore stopped correctly, but the failure was not yet fully observable or auditable.
-
-- **How we identified it:**  
-  A controlled pytest deliberately replaced the expected `close` field with `close_changed`. Before the correction, the focused test run produced **1 failed and 1 passed**, showing that detection worked but the required logging and quarantine behaviour did not.
-
-- **Fix:**  
-  The failure sequence was revised so the Yahoo schema change is logged and quarantined as DQ07 before the load stops. The correction was reviewed and merged through **PR #8**.
-
-- **Verification after the fix:**  
-  Re-running the focused schema tests produced **2 passed**, and the full test suite subsequently produced **30 passed**.
-
-- **Lesson / guardrail:**  
-  AI-generated validation code should not be accepted simply because it detects an error or raises an exception. Our tests must also verify the surrounding governance requirements, including logging, quarantine and auditability.
