@@ -49,11 +49,11 @@ def add_yield_change_5obs(f2: pd.DataFrame, value_col: str = "value_pct") -> pd.
     """Change from the 5th previous valid RBA observation, in basis points.
 
     Calculated on the RBA's own dates, before any join to ASX dates, so a blank RBA date
-    (for example NSW Labour Day) is skipped rather than treated as a zero change. Rounded to
-    0.1 bp, the precision of the source (yields are published to three decimal places).
-    Blank dates keep a NULL change.
+    (for example NSW Labour Day) is skipped rather than treated as a zero change. Blank dates
+    keep a NULL change. Stored at full precision (METRICS.md v1.1): rounding to 0.1 bp is for
+    display only and happens in the dashboard, never here.
     """
     out = f2.reset_index(drop=True)
     v = _valid(out, "trade_date_syd", value_col)
-    out["yield_change_5obs_bp"] = ((v[value_col] - v[value_col].shift(YIELD_LAG_OBS)) * 100).round(1)
+    out["yield_change_5obs_bp"] = ((v[value_col] - v[value_col].shift(YIELD_LAG_OBS)) * 100)
     return out

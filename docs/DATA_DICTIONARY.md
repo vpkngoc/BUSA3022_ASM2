@@ -18,8 +18,8 @@
 | `yield_asat_pct` | % per year | Newest RBA 10-year yield **published by 6:00 pm** that day | RBA F2, joined point in time on `available_from_syd` |
 | `yield_asat_obs_date` | date | The RBA date that yield belongs to | RBA F2 |
 | `yield_asat_age_sessions` | ASX sessions | How many sessions old that yield is (Friday 2 … Thursday 6, because F2 is released weekly). NULL if older than the ASX history | `pipeline.align` |
-| `yield_change_5obs_bp` | basis points | 5-observation change of the yield above, calculated on RBA dates before the join | `add_yield_change_5obs` (METRICS.md) |
+| `yield_change_5obs_bp` | basis points | 5-observation change of the yield above, calculated on RBA dates before the join; stored at full precision (round to 0.1 bp only when displaying) | `add_yield_change_5obs` (METRICS.md) |
 | `yield_same_day_pct` | % per year | The RBA yield dated the same day. **Published days later**: for analysis (e.g. correlation), never shown as if known that evening. NULL when the RBA has no value (e.g. NSW Labour Day) | RBA F2 |
 | `dq_flags` | rule IDs | Quality flags carried from the clean tables, prefixed by source, e.g. `asx:DQ03`. `rba:DQ04` marks every session with no same-dated RBA yield: a blank RBA date (NSW Labour Day) or one not published yet | `config/dq_rules.yaml` |
 
-These rules are enforced by `tests/test_serve_contract.py` on the committed data in every pull request: names are `snake_case` with a unit suffix, one row per weekday session, review times carry the right Sydney offset, no session uses a yield published after its review, and the same-day yield is blank exactly where the RBA has no value.
+These rules are enforced by `tests/test_serve_contract.py` on the committed data in every pull request: names are `snake_case` with a unit suffix, one row per weekday session, review times carry the right Sydney offset, no session uses a yield published after its review, and the same-day yield is blank, and flagged `rba:DQ04`, exactly where the RBA has no value.
