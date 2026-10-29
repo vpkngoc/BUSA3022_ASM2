@@ -74,3 +74,24 @@ For each metric, complete every field.
 ## Change control
 
 Any change to a metric definition, formula, window, unit or missing-data treatment requires a version note in this file and a corresponding entry in `CHANGELOG.md`. AI-assisted transformation code must implement the committed definition rather than redefine the metric through code.
+
+### v1.1 — 29 October 2026
+
+At 12:10 pm on 29 October 2026, we provided the committed metric requirements above verbatim to the AI agent as the Part 2 implementation prompt. The agent was asked to implement the specification rather than redefine the metrics. Review of PR #9 surfaced several modelling choices that we then made explicit:
+
+- **Review time — confirmed:** The point-in-time management review is 6:00 pm Sydney time. Only information available by that time can be used for that day's analytical view. The named `Australia/Sydney` time zone is used so daylight-saving changes are handled explicitly.
+
+- **Volatility convention — confirmed:** `vol20_ann_pct` uses the **sample standard deviation** of the latest 20 valid daily log returns, consistent with our independent Excel check using `STDEV.S`, and is annualised using `√252`.
+
+- **Yield-change rounding — confirmed:** `yield_change_5obs_bp` is calculated at full precision and may be displayed rounded to **0.1 basis point**. Rounding is for reporting only and does not change the underlying calculation.
+
+- **Completed trading session — confirmed:** A session counts only when the ASX trading day has completed and the observation is not flagged `in_progress`. Partial intraday bars are excluded from MA20 and realised-volatility windows.
+
+- **Version control — confirmed:** This v1.1 note records the agreed interpretation of the metric requirements. Any later change to a formula, window, unit, review time or missing-data treatment requires another version note and a corresponding `CHANGELOG.md` entry.
+
+**Benchmark interpretation**
+
+- **Realised volatility:** Vol20 is interpreted relative to its own recent or historical distribution rather than against an external industry standard. Any RAG threshold derived from that distribution will be documented separately in the dashboard specification.
+- **Five-observation yield change:** The primary reference point is **0 bp**, representing no change over the five valid observations. Positive and negative values indicate rising and falling long-term yields respectively, while the magnitude can be compared with recent historical movements for context.
+
+These clarifications form part of the human-approved specification and therefore apply equally to human-written and AI-generated transformation code.
