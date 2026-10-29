@@ -76,9 +76,40 @@ On GitHub: Actions → **ingest** → **Run workflow** → choose the scenario. 
 ### Observed in production
 
 - **25 Oct 2026, 07:26 UTC:** the RBA site answered GitHub's runner with **HTTP 403** four minutes after a successful download. The pipeline kept the last good load and marked the source *stale*, as designed. A 403 is now retried with backoff, like a rate limit.
+- **26–28 Oct 2026: the scheduled run started 6 to 7 hours late** (scheduled 07:17 UTC; started 14:19, 13:16 and 14:03 UTC, i.e. after midnight Sydney). GitHub's documentation says scheduled runs can be delayed when Actions is busy. Nothing broke, but our download time is no longer a good proxy for when the RBA published, so new RBA values are now dated from the file's own *Publication date* (2:00 pm), never later than when we saw them. If an on-time run ever matters, trigger it by hand.
+- **Every weekday night: the newest ASX session arrives as a live bar** (stamped about 4:55 pm Sydney, volume 0) next to an empty 10:00 bar, which DQ01 quarantines. The next night the final bar replaces it. In the two replacements seen so far the close was unchanged; any change is now logged as DQ08.
+- **29 Oct 2026, 12:20 Sydney (test run during trading):** Yahoo's bar for the previous session (28 Oct) was still empty and its live bar had gone, so a run from an empty folder would have quarantined 28 Oct (DQ01). The repository's clean table kept the provisional 28 Oct row from the night before, because an upsert only replaces dates that arrive clean. Yahoo also reported the regular session ending at 4:12 pm Sydney, which is why a live bar stamped before 4:15 pm is treated as *in_progress*.
 
 ### Known, expected flags
 
 - **DQ04 on the first Monday of October** (NSW Labour Day): the ASX trades but the RBA publishes no yield. Kept as missing, never filled.
 - **DQ05 on historic big days** (for example 19–20 March 2020): flagged for review, not removed.
 - **DQ02 on the latest ASX date**: Yahoo sends a second, live bar during the day; it is quarantined and the 10:00-stamped bar is kept.
+- **DQ01 + DQ03 on the newest session every night**: the empty 10:00 placeholder is quarantined (no close) and the live bar is kept with volume 0 (see "Observed in production").
+
+## Part 2 — curation: one Sydney time axis and the metrics
+
+### What runs
+
+At the end of every real run, `pipeline.run` rebuilds `data/serve/daily_panel.csv` from the clean tables (simulations never touch it). To rebuild it on its own:
+
+```bash
+python -m pipeline.align
+```
+
+The run summary ends with one line such as *"Serve table rebuilt: 511 sessions, latest 2026-10-28 (provisional bar); RBA yield as at 6 pm is dated 2026-10-21 (5 sessions old)."* If it says **NOT rebuilt**, the run fails and an issue opens: the dashboard would otherwise show yesterday's numbers without saying so.
+
+### How to read a row
+
+Every row answers: *what could a manager know at 6:00 pm Sydney on this trading day?* Columns are described in [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md); the metric definitions are the team's, in [`METRICS.md`](METRICS.md).
+
+| You see | It means | Do |
+| --- | --- | --- |
+| `yield_asat_age_sessions` 2 to 6 (1 in some holiday weeks) | Normal: the RBA publishes weekly | Show "RBA yield as at <obs date>" next to the number |
+| `bar_status = provisional` | Latest session; close final, volume not yet known | Show the close; leave the volume bar empty, not zero |
+| `bar_status = in_progress` | Someone ran the pipeline during trading hours | Ignore the row's close for decisions; the metrics already skip it |
+| Blank `yield_same_day_pct` | Not published yet, or no RBA value that day (e.g. NSW Labour Day) | Nothing: never fill it in |
+
+### Checks
+
+`tests/test_metrics.py` (formulas against hand calculations), `tests/test_align.py` (point in time, daylight saving, provisional bars) and `tests/test_serve_contract.py` (modelling standards on the real data) run on every pull request.

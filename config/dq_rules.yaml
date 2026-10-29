@@ -38,6 +38,6 @@ rules:
     action: stop
   - id: DQ08
     dimension: consistency
-    source: au10y
-    check: previously stored values unchanged in the new snapshot (revisions logged old to new)
+    source: both
+    check: previously stored values unchanged in the new snapshot (RBA yield revisions, and ASX closes when the provisional bar is replaced; logged old to new)
     action: flag

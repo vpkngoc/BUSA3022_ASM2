@@ -6,7 +6,8 @@
     python -m pipeline.run --simulate schema     # demo: F2 series ID changed -> load stopped
     python -m pipeline.run --as-of 2026-10-22T18:00+11:00   # evaluate the release clock at a past moment
 
-Simulated runs write to the quality log (marked simulated) but never change clean tables.
+A real run then rebuilds data/serve/daily_panel.csv (Part 2: metrics on one Sydney time axis).
+Simulated runs write to the quality log (marked simulated) but never change clean or serve tables.
 Simulated 'late' and 'schema' runs replay the last good raw snapshot, so they never call a provider.
 Exit code 1 means a load was stopped, or a source was late or stale on two consecutive real runs; the
 scheduled workflow then opens a GitHub issue for the data owner.
@@ -23,7 +24,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import requests
 
-from . import store
+from . import align, store
 from .config import QUALITY, QUARANTINE, SYD, sources
 from .http import FetchError, fetch
 from .ingest_rba_f2 import SchemaError, parse_f2
@@ -99,7 +100,12 @@ def run_asx(cfg, run_id, now, as_of, simulate, session) -> dict:
     row["quarantine_path"] = store.write_quarantine(run_id, "asx200", result.quarantine)
     store.log_events(result.events)
     if simulate == "none":
-        store.upsert_asx(result.clean, run_id)
+        _, revisions = store.upsert_asx(result.clean, run_id)
+        store.log_events([{"run_id": run_id, "source": "asx200", "record_key": r.trade_date_syd, "rule_id": "DQ08",
+                           "dimension": "consistency", "action": "flag",
+                           "detail": f"close revised {r.old_close} -> {r.new_close}"} for r in revisions.itertuples()])
+        if len(revisions):
+            row["detail"] = f"{len(revisions)} close revision(s) logged"
     return row
 
 
@@ -158,7 +164,7 @@ def run_f2(cfg, run_id, now, as_of, simulate, session) -> dict:
                        "dimension": "timeliness", "action": "alert",
                        "detail": f"expected data through {exp}, received through {received}"})
     if simulate == "none":
-        _, revisions = store.upsert_f2(clean, run_id, now)
+        _, revisions = store.upsert_f2(clean, run_id, now, info.get("publication_date"))
         for r in revisions.itertuples():
             events.append({"run_id": run_id, "source": "au10y", "record_key": r.trade_date_syd, "rule_id": "DQ08",
                            "dimension": "consistency", "action": "flag",
@@ -215,11 +221,23 @@ def main(argv=None) -> int:
         time.sleep(1)
 
     md = summary_markdown(rows, run_id)
+    serve_failed = False
+    if args.simulate == "none":         # Part 2: rebuild the serve table from the clean tables
+        try:
+            s = align.rebuild()
+            line = (f"Serve table rebuilt: {s['sessions']} sessions, latest {s['latest_session']} "
+                    f"({s['bar_status']} bar); RBA yield as at 6 pm is dated {s['yield_asat_obs_date']} "
+                    f"({s['yield_asat_age_sessions']} sessions old).")
+        except Exception as exc:
+            serve_failed = True
+            line = f"Serve table NOT rebuilt: {type(exc).__name__}: {exc}"
+        _say(f"  {line}")
+        md += f"\n{line}\n"
     (QUALITY / "last_run_summary.md").write_text(md)
     for r in rows:   # a yellow warning on the GitHub run page: visible, but not an alarm
         if r["status"] in ("late", "stale") and os.environ.get("GITHUB_ACTIONS") == "true":
             print(f"::warning title={r['source']} {r['status']}::{r['detail']}", flush=True)
-    if needs_alert(rows, args.simulate):
+    if needs_alert(rows, args.simulate) or serve_failed:
         _say("ALERT: data owner action needed (see data/quality/last_run_summary.md)")
         return 1
     return 0

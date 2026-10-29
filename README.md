@@ -2,7 +2,7 @@
 
 BUSA3022 Managing Analytics and Algorithmic Systems — Assessment 2, Analytics Lead Case Study (Really Big Bank, post-trade team).
 
-> **Status:** Part 1 pipeline built (scheduled ingestion, quality log, failure handling). Curation and dashboard proofs of concept are next.
+> **Status:** Part 1 pipeline and Part 2 curation built (scheduled ingestion, quality log, failure handling; metrics on one Sydney time axis). Dashboard proof of concept is next.
 
 ## The business question
 
@@ -21,7 +21,7 @@ See [`docs/DATA_USE.md`](docs/DATA_USE.md) (to come) for how each source may and
 
 ```
 pipeline/     Part 1 — ingestion, validation, quality logging
-curate/       Part 2 — time-axis alignment, vintages, metrics
+              Part 2 — metrics.py (the three metrics), align.py (Sydney time axis, serve table)
 dashboard/    Part 3 — dashboard build (Python/Plotly) published to GitHub Pages
 notebooks/    Walkthroughs for markers (Colab / VS Code)
 config/       Source definitions, data quality rules, metric definitions
@@ -36,7 +36,8 @@ docs/         Charter, metric requirements, runbook, style guide, AI log
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pytest -q
-python -m pipeline.run                   # Part 1: download, check and store both sources
+python -m pipeline.run                   # Parts 1–2: download, check, store, then rebuild data/serve
+python -m pipeline.align                 # Part 2 only: rebuild data/serve/daily_panel.csv
 python -m pipeline.run --simulate late   # demo a failure: also 429 or schema
 ```
 

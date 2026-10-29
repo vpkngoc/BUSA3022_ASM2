@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from .config import CURATED, QUALITY, QUARANTINE, RAW, SYD
-from .release_calendar import release_covering
+from .release_calendar import RELEASE_TIME, release_covering
 
 
 def write_raw(source: str, run_id: str, content: bytes, ext: str, fetched_at: datetime, manifest: dict) -> Path:
@@ -49,22 +49,47 @@ def append_csv(path: Path, df: pd.DataFrame) -> None:
     df.to_csv(path, mode="a", header=not path.exists(), index=False)
 
 
-def upsert_asx(clean: pd.DataFrame, run_id: str) -> pd.DataFrame:
+def upsert_asx(clean: pd.DataFrame, run_id: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Update the ASX clean table. Returns (merged table, closes that changed).
+
+    The latest session usually arrives as a provisional bar and is replaced by the final bar
+    on the next run. A replacement that changes the close is returned so it can be logged
+    (DQ08), never overwritten silently.
+    """
     path = CURATED / "asx200_daily.csv"
     new = clean.assign(last_seen_run_id=run_id)
+    revisions = pd.DataFrame(columns=["trade_date_syd", "old_close", "new_close"])
     if path.exists():
         old = pd.read_csv(path, dtype={"dq_flags": str}, keep_default_na=False, na_values=[""])
+        both = old[["trade_date_syd", "close"]].merge(new[["trade_date_syd", "close"]], on="trade_date_syd",
+                                                       suffixes=("_old", "_new"))
+        changed = both[(both.close_old - both.close_new).abs() > 1e-9]
+        revisions = changed.rename(columns={"close_old": "old_close", "close_new": "new_close"})
         merged = pd.concat([old[~old.trade_date_syd.isin(new.trade_date_syd)], new])
     else:
         merged = new
     merged = merged.sort_values("trade_date_syd").reset_index(drop=True)
     path.parent.mkdir(parents=True, exist_ok=True)
     merged.to_csv(path, index=False)
-    return merged
+    return merged, revisions.reset_index(drop=True)
 
 
-def upsert_f2(clean: pd.DataFrame, run_id: str, seen_at: datetime) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Update the F2 clean table and vintages. Returns (merged table, revisions)."""
+def published_at(publication_date: str | None) -> datetime | None:
+    """The RBA's 'Publication date' header (e.g. '23-Oct-2026') at the 2:00 pm release time."""
+    try:
+        return datetime.combine(datetime.strptime(publication_date, "%d-%b-%Y").date(), RELEASE_TIME, SYD)
+    except (TypeError, ValueError):
+        return None
+
+
+def upsert_f2(clean: pd.DataFrame, run_id: str, seen_at: datetime,
+              publication_date: str | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Update the F2 clean table and vintages. Returns (merged table, revisions).
+
+    A new or revised value is available from the file's own publication time, but never
+    later than when we first saw it. Using the publication time (not our download time)
+    keeps availability right when the scheduled run starts hours late, as GitHub runs can.
+    """
     path = CURATED / "au10y_daily.csv"
     vint_path = CURATED / "au10y_vintages.csv"
     first_run = not path.exists()
@@ -72,6 +97,8 @@ def upsert_f2(clean: pd.DataFrame, run_id: str, seen_at: datetime) -> tuple[pd.D
            if not first_run else pd.DataFrame(columns=["trade_date_syd", "value_pct", "dq_flags"]))
     old_vals = dict(zip(old.trade_date_syd, old.value_pct))
     seen_syd = seen_at.astimezone(SYD).isoformat(timespec="minutes")
+    pub = published_at(publication_date)
+    live_avail = (min(seen_at, pub) if pub else seen_at).astimezone(SYD).isoformat(timespec="minutes")
 
     vintages, revisions = [], []
     for r in clean.itertuples():
@@ -82,9 +109,9 @@ def upsert_f2(clean: pd.DataFrame, run_id: str, seen_at: datetime) -> tuple[pd.D
             change, avail, recon = "initial_backfill", release_covering(
                 datetime.strptime(r.trade_date_syd, "%Y-%m-%d").date()).isoformat(timespec="minutes"), True
         elif before is None or pd.isna(before):
-            change, avail, recon = "new", seen_syd, False
+            change, avail, recon = "new", live_avail, False
         elif abs(before - r.value_pct) > 1e-9:
-            change, avail, recon = "revised", seen_syd, False
+            change, avail, recon = "revised", live_avail, False
             revisions.append({"trade_date_syd": r.trade_date_syd, "old_value_pct": before, "new_value_pct": r.value_pct})
         else:
             continue
