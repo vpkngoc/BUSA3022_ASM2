@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-29 (Part 2)
+- Metrics `ma20_pts`, `vol20_ann_pct`, `yield_change_5obs_bp` as defined by the team in `docs/METRICS.md` (commit 9831fb1) (`pipeline/metrics.py`).
+- Every session with no same-dated RBA yield is flagged `rba:DQ04` and left blank (METRICS.md, M3 edge cases).
+- Serve table `data/serve/daily_panel.csv`: one row per ASX session in Sydney; RBA yield joined point in time ("as at" 6:00 pm Sydney), with its age in sessions; same-day yield kept separately for analysis (`pipeline/align.py`), rebuilt after every real run.
+- Data quality: the newest ASX session's live bar is labelled `provisional` (volume NULL) or `in_progress` (left out of metrics); a changed close on replacement is logged as DQ08 (DQ08 now covers both sources).
+- New RBA values are available from the file's publication time, not the download time (scheduled runs started 6–7 hours late on 26–28 Oct).
+- Data dictionary; serve-table contract tests enforce the modelling standards.
+
 ## 2026-10-25 (Part 1 fixes)
 - `late` and `schema` simulations replay the last good raw snapshot instead of calling the provider (the first `schema` demo on GitHub never reached the schema check because the RBA returned HTTP 403).
 - HTTP 403 is retried with backoff; two consecutive *stale* real runs now raise an alert, like two *late* runs.
