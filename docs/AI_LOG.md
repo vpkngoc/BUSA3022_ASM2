@@ -74,26 +74,29 @@ The log supports three rubric points: a specific example of incorrect or incompl
 - Lesson / guardrail:
   AI-generated validation code should not be accepted simply because it detects an error or raises an exception. Our tests must also verify the surrounding governance requirements, including logging, quarantine and auditability.
 
-### 2026-10-30
-- Who noticed: Claude
+### 2026-10-29 — Yield age reported when it could not be known
+- Who noticed: Claude, checking the spread of a new column before opening PR #9 (no test or person caught it)
 - Part: 2 (curation)
-- What the agent produced: reading the age counts before review
-- What was wrong or incomplete: Said the yield was "1 session old" on the first two ASX dates, when its RBA date was older than the ASX history (should be unknown)
-- How we found it (test, hand check, review): review
-- Fix and follow-up (PR link): Age left blank when it cannot be counted
-- Lesson / guardrail added:
+- What the agent produced: `yield_asat_age_sessions`, how many ASX sessions old the 6 pm yield is
+- What was wrong or incomplete: on the first two ASX dates in the history (23–24 Oct 2024) the yield's RBA date was older than the ASX data, so the sessions in between could not be counted; the code reported a small number instead of "unknown"
+- How we found it (test, hand check, review): a count of the age values showed unexpected 1s; three were genuine holiday weeks, the first rows were not
+- Fix and follow-up (PR link): age left blank when it cannot be counted, before PR #9 was opened
+- Lesson / guardrail added: look at the distribution of every new derived column, not just a few rows
 
-### 2026-10-30
-- Who noticed: Claude
-- Part: 1 (pipeline)
-- What the agent produced: running the pipeline end to end from an empty folder: the guardrail from incident 1
-- What was wrong or incomplete: A run started during trading (12:20, 29 Oct) fed the half-finished session into MA20 and volatility
-- How we found it (test, hand check, review): review
-- Fix and follow-up (PR link): Bar labelled in_progress and left out of the metrics; a test added
-- Lesson / guardrail added:
+### 2026-10-29 — A half-finished trading session entered the metrics
+- Who noticed: Claude, running the whole pipeline from an empty folder at 12:20 Sydney, the guardrail adopted after the first Part 1 incident
+- Part: 2 (curation)
+- What the agent produced: MA20 and Vol20 in the serve table
+- What was wrong or incomplete: Yahoo's live bar for a session still trading was treated as a completed session, so an intraday price entered MA20 and Vol20, against our definition ("latest 20 completed trading sessions")
+- How we found it (test, hand check, review): the run summary listed 29 Oct as the newest session; its bar was stamped 12:02 pm Sydney
+- Fix and follow-up (PR link): bars stamped before 4:15 pm Sydney are labelled `in_progress` and left out of every metric; test added (PR #9)
+- Lesson / guardrail added: a Part 1 guardrail caught a Part 2 bug; run end to end at an awkward time of day, not only after the close
 
-### 2026-10-30
-- PR #9 code rounded the yield change inside the calculation; writing v1.1 exposed it
-
-### 2026-10-30
-- made the code follow the spec
+### 2026-10-29 — Code rounded where our spec says only the display rounds
+- Who noticed: Claude, comparing Maika's METRICS.md v1.1 with the merged code
+- Part: 2 (curation)
+- What the agent produced: `add_yield_change_5obs` rounded to 0.1 bp inside the calculation (PR #9), a choice the agent made where the spec was silent and listed for us to confirm
+- What was wrong or incomplete: v1.1 then decided rounding is for display only and the stored value stays at full precision, so the merged code no longer matched the approved spec
+- How we found it (test, hand check, review): review of v1.1 against the code
+- Fix and follow-up (PR link): PR #10 stores the value unrounded and adds a test; PR #10 was merged without a recorded approval
+- Lesson / guardrail added: when the spec and the code disagree, the code changes, not the spec (our change-control rule)
