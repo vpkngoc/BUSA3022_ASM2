@@ -60,19 +60,45 @@ The log supports three rubric points: a specific example of incorrect or incompl
 - Fix and follow-up: fixed in `pipeline/store.py` before PR #2 was opened
 - Lesson / guardrail added: run the whole pipeline from an empty state before review, not just the unit tests
 
-### 2026-10-29 — Part 2 metric specification v1.1:
-Clarified the 6:00 pm Sydney review point, sample-standard-deviation convention for realised volatility, 0.1 bp display rounding for yield change, completed-session treatment, and metric benchmark interpretation. Confirmed that AI-assisted transformation code must follow the committed human-approved specification.
-- **Who noticed**: Maika (requirement and test design); gap confirmed by her test failing in CI
-- **Part: 2**
-- **What the AI-assisted implementation initially did:**
+### 2026-10-25 — Yahoo schema change stopped the run but was not logged
+- Who noticed: Maika (requirement and test design); gap confirmed by her test failing in CI
+- Part: 1 (pipeline)
+- What the AI-assisted implementation initially did:
   The initial parser correctly detected that the expected Yahoo `close` field was missing and raised a `SchemaError`.
-- **What was incomplete:**
+- What was incomplete:
   Although the schema change was detected, the exception occurred before the failure was recorded and quarantined under the required data-quality control. The pipeline therefore stopped correctly, but the failure was not yet fully observable or auditable.
-- **How we identified it:**
+- How we identified it:
   A controlled pytest deliberately replaced the expected `close` field with `close_changed`. Before the correction, the focused test run produced **1 failed and 1 passed**, showing that detection worked but the required logging and quarantine behaviour did not.
-- **Fix:**
+- Fix:
   The failure sequence was revised so the Yahoo schema change is logged and quarantined as DQ07 before the load stops. The correction was reviewed and merged through **PR #8**.
-- **Verification after the fix:**
+- Verification after the fix:
   Re-running the focused schema tests produced **2 passed**, and the full test suite subsequently produced **30 passed**.
-- **Lesson / guardrail:**
+- Lesson / guardrail:
   AI-generated validation code should not be accepted simply because it detects an error or raises an exception. Our tests must also verify the surrounding governance requirements, including logging, quarantine and auditability.
+
+### 2026-10-29 — Yield age reported when it could not be known
+- Who noticed: Claude, checking the spread of a new column before opening PR #9 (no test or person caught it)
+- Part: 2 (curation)
+- What the agent produced: `yield_asat_age_sessions`, how many ASX sessions old the 6 pm yield is
+- What was wrong or incomplete: on the first two ASX dates in the history (23–24 Oct 2024) the yield's RBA date was older than the ASX data, so the sessions in between could not be counted; the code reported a small number instead of "unknown"
+- How we found it (test, hand check, review): a count of the age values showed unexpected 1s; three were genuine holiday weeks, the first rows were not
+- Fix and follow-up (PR link): age left blank when it cannot be counted, before PR #9 was opened
+- Lesson / guardrail added: look at the distribution of every new derived column, not just a few rows
+
+### 2026-10-29 — A half-finished trading session entered the metrics
+- Who noticed: Claude, running the whole pipeline from an empty folder at 12:20 Sydney, the guardrail adopted after the first Part 1 incident
+- Part: 2 (curation)
+- What the agent produced: MA20 and Vol20 in the serve table
+- What was wrong or incomplete: Yahoo's live bar for a session still trading was treated as a completed session, so an intraday price entered MA20 and Vol20, against our definition ("latest 20 completed trading sessions")
+- How we found it (test, hand check, review): the run summary listed 29 Oct as the newest session; its bar was stamped 12:02 pm Sydney
+- Fix and follow-up (PR link): bars stamped before 4:15 pm Sydney are labelled `in_progress` and left out of every metric; test added (PR #9)
+- Lesson / guardrail added: a Part 1 guardrail caught a Part 2 bug; run end to end at an awkward time of day, not only after the close
+
+### 2026-10-29 — Code rounded where our spec says only the display rounds
+- Who noticed: Claude, comparing Maika's METRICS.md v1.1 with the merged code
+- Part: 2 (curation)
+- What the agent produced: `add_yield_change_5obs` rounded to 0.1 bp inside the calculation (PR #9), a choice the agent made where the spec was silent and listed for us to confirm
+- What was wrong or incomplete: v1.1 then decided rounding is for display only and the stored value stays at full precision, so the merged code no longer matched the approved spec
+- How we found it (test, hand check, review): review of v1.1 against the code
+- Fix and follow-up (PR link): PR #10 stores the value unrounded and adds a test; PR #10 was merged without a recorded approval
+- Lesson / guardrail added: when the spec and the code disagree, the code changes, not the spec (our change-control rule)
