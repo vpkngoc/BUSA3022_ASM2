@@ -95,3 +95,43 @@ At 12:10 pm on 29 October 2026, we provided the committed metric requirements ab
 - **Five-observation yield change:** The primary reference point is **0 bp**, representing no change over the five valid observations. Positive and negative values indicate rising and falling long-term yields respectively, while the magnitude can be compared with recent historical movements for context.
 
 These clarifications form part of the human-approved specification and therefore apply equally to human-written and AI-generated transformation code.
+
+## M4 — Volume vs its 20-session normal
+### v1.2 - 30 October 2026
+
+- **Definition:**  
+  This metric compares today's S&P/ASX 200 trading volume with the average volume of the previous 20 completed trading sessions. It shows whether market activity today is unusually heavy compared with what has been normal recently.
+
+- **Calculation (formula, window N, units):**  
+  Divide today's final volume by the average of the previous 20 valid final volumes, then subtract 1:
+
+  `VolRatio20(t) = V(t) / ((V(t-1) + V(t-2) + ... + V(t-20)) / 20) − 1`
+
+  The 20-session average does **not** include today, so an unusual day cannot pull up its own baseline.
+
+  Window: the previous 20 completed sessions with valid final volume.  
+  Unit: percentage above or below normal. +30% means today's volume was 30% higher than the recent average.
+
+- **Edge cases:**  
+  - **Newest day:** The volume for the most recent session can still change after the close, until the data source marks it as final. Until then, its status is shown as *Pending*. No Amber or Red flag is raised, and the value is not used in any baseline.
+  - **First 20 sessions:** Return `NULL` until 20 valid final volumes exist before the current day.
+  - **Zero-volume day (29 Jun 2026):** A full trading session with zero index volume is treated as a data error, not as a real quiet day. It is flagged as invalid and excluded. No value is calculated for that day, and it is skipped when building later baselines, so the count goes back to the previous valid sessions until it reaches 20. It is not replaced with an estimate.
+  - **Yahoo index volume is relative only:** The volume figure from Yahoo Finance is not an official ASX turnover figure, so the absolute number is not reported or compared with other sources. It is used only to compare the index with its own recent history, which is what this ratio does.
+
+- **The question it answers, and why it matters for benchmarking:**  
+  This metric answers: **Is today's market activity unusually heavy compared with normal?**  
+  A price move made on heavy volume usually involves more participants than the same move on normal volume. Reading M4 alongside M1 (direction) and M2 (volatility) helps management tell routine days apart from days the market is reacting to something. It also gives a consistent activity measure that could later be compared with the bank's own transaction or trading volumes.
+
+- **Thresholds and how often they would have fired (back-test, 63 sessions):**
+
+  | Level | Rule | Sessions fired | Dates |
+  |---|---|---|---|
+  | Green | below +30% | 58 of 63 | — |
+  | Amber | +30% to below +60% | 3 of 63 | 20 Aug, 16 Oct, 23 Oct |
+  | Red | +60% or more | 2 of 63 | 31 Aug, 18 Sep |
+
+  The newest session is not counted until its volume is final.
+
+- **Action:**  
+  - **Amber:** Note it on the dashboard. Check the ASX calendar for a known event, such as month end, an index rebalance or a derivatives expiry. Read it together with M1 and M2 before drawing any conclusion. No escalation is needed on its own.
+  - **Red:** Label the event on the chart. Check whether a known calendar event explains it. If no scheduled event explains it, or if M2 is also elevated, add a short note for management explaining what happened that day.

@@ -3,8 +3,9 @@
 Everything the dashboard shows is either a column of data/serve/daily_panel.csv (Part 2)
 or one of the three indicators below. They are DRAFTS for the team's critique:
 
-* volume_vs_normal_pct, rag_status: proposed metric M4. It is NOT in docs/METRICS.md yet;
-  the team must write it there (v1.2) before this becomes the signal of record.
+* volume_vs_normal_pct, rag_status: metric M4 as the team defined it in docs/METRICS.md v1.2
+  (Green below +30%, Amber +30% to below +60%, Red +60% or more; the newest day is Pending
+  until its volume is final; a zero-volume session is invalid and Excluded).
 * corr20: rolling 20-session correlation of the daily ASX return with the same-day change
   in the RBA 10-year yield (the macro overlay). The same-day yield change is published days
   later, so this is a look-back measure, never something known that evening.
@@ -18,9 +19,8 @@ import pandas as pd
 
 WINDOW_DAYS = 90            # decision D7: 90 calendar days
 NORMAL_SESSIONS = 20        # "normal" volume = average of the previous 20 final sessions
-AMBER_AT = 0.30             # volume at least 30% above normal
+AMBER_AT = 0.30             # volume at least 30% above normal (METRICS.md M4)
 RED_AT = 0.60               # ... at least 60% above normal
-RED_RUN = 3                 # ... or Amber three sessions in a row
 CORR_SESSIONS = 20
 CORR_MIN = 15               # at least 15 paired days in the 20-session window
 
@@ -50,12 +50,12 @@ def add_volume_vs_normal(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_rag(panel: pd.DataFrame) -> pd.DataFrame:
-    """Green / Amber / Red / Pending from volume_vs_normal_pct."""
+    """Green / Amber / Red / Pending / Excluded from volume_vs_normal_pct (METRICS.md M4 v1.2)."""
     out = panel.copy()
     r = out["volume_vs_normal_pct"] / 100
-    amber = r >= AMBER_AT
-    run = amber.astype(int).groupby((~amber).cumsum()).cumsum()   # consecutive Amber sessions
-    status = np.select([r.isna(), (r >= RED_AT) | (run >= RED_RUN), amber], ["Pending", "Red", "Amber"], "Green")
+    excluded = (out["bar_status"] == "final") & ~(out["volume"] > 0)      # zero or missing final volume: invalid
+    status = np.select([excluded, r.isna(), r >= RED_AT, r >= AMBER_AT],
+                       ["Excluded", "Pending", "Red", "Amber"], "Green")
     out["rag_status"] = status
     return out
 
