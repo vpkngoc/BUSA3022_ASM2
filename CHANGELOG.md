@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-30 (Part 3, dashboard v2)
+- Prompt v2 (`docs/prompts/dashboard_v2.md`) from Ngoc's critique of v1: navy theme with a new accent blue; blue ticker; "View period" label; one dense insight line under each "Show analysis"; the volume signal card leads with the RAG colour, its meaning and M4's action, with a threshold ladder; a session strip replaces the donut; aqua and violet lines instead of grey; optional candlestick view (not the default); the "awaiting RBA release" band in the yield's orange; Red days labelled on the volume chart.
+- The signal follows M4 as written in `docs/METRICS.md` v1.2: Red is +60% or more only (the draft three-Ambers-in-a-row rule is removed); a zero-volume session is Excluded, not Pending.
+
 ## 2026-10-30 (Part 3, dashboard v1)
 - Prompt v1 (`docs/prompts/dashboard_v1.md`) from Ngoc's critique of v0: dark theme; general title with a takeaway box; running ticker with "last fetch"; 1W / 1M / 3M (default, the brief's 90 days) / 1Y range buttons; gauge and donut for the volume signal; ▲/▼ good/bad colour on changes; descriptive titles with "Show analysis"; baseline chart for price; triggered sessions beside the volume chart; correlation as an area plus a return-vs-yield-change scatter; notes list only the data sources.
 - The page now carries one year of sessions; range summaries are computed in the page. Prompt iterations logged in `docs/AI_LOG.md`.

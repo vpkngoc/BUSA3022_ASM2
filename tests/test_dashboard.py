@@ -17,23 +17,25 @@ def test_normal_is_the_previous_20_final_volumes():
     assert out.volume_vs_normal_pct.iloc[20] == pytest.approx(30.0)
 
 
-def test_zero_and_unfinished_volumes_are_pending_not_zero():
+def test_zero_volume_is_excluded_and_unfinished_is_pending():
     status = ["final"] * 21 + ["provisional"]
     out = ind.add_rag(ind.add_volume_vs_normal(sessions([100.0] * 10 + [0.0] + [100.0] * 10 + [None], status)))
     assert out.volume_normal.iloc[-1] == pytest.approx(100.0)        # the zero day is not part of the normal
-    assert out.rag_status.iloc[10] == "Pending" and out.rag_status.iloc[-1] == "Pending"
+    assert out.rag_status.iloc[10] == "Excluded"                       # M4 v1.2: invalid, not a quiet day
+    assert out.rag_status.iloc[-1] == "Pending"                        # newest day not final yet
 
 
-@pytest.mark.parametrize("today, expected", [(129.0, "Green"), (130.0, "Amber"), (160.0, "Red")])
+@pytest.mark.parametrize("today, expected", [(129.0, "Green"), (130.0, "Amber"), (159.0, "Amber"), (160.0, "Red")])
 def test_thresholds(today, expected):
     out = ind.add_rag(ind.add_volume_vs_normal(sessions([100.0] * 20 + [today])))
     assert out.rag_status.iloc[-1] == expected
 
 
-def test_three_amber_sessions_in_a_row_turn_red():
+def test_three_amber_sessions_in_a_row_stay_amber():
+    """M4 v1.2 has no run rule: Red is +60% or more only (v0's draft run rule was dropped)."""
     vols = [100.0] * 20 + [140.0, 150.0, 160.0]                       # each about 35-45% above its normal
     out = ind.add_rag(ind.add_volume_vs_normal(sessions(vols)))
-    assert list(out.rag_status.iloc[-3:]) == ["Amber", "Amber", "Red"]
+    assert list(out.rag_status.iloc[-3:]) == ["Amber", "Amber", "Amber"]
 
 
 def test_window_is_90_calendar_days_ending_at_the_newest_session():
