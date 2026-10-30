@@ -53,6 +53,9 @@ def test_the_page_builds_from_the_committed_data():
     assert m["default_days"] == 90                                     # the brief's 90 days is the default range
     assert len(m["rows"]) > 200                                        # one year of sessions for the 1Y button
     assert all(r["volume"] is None for r in m["rows"] if r["bar_status"] != "final")   # never a fake zero
+    # guard against a merge silently bringing back an older layout (happened on 30 Oct)
+    for part in ('id="signal"', "View period", 'id="strip"', 'data-style="candle"'):
+        assert part in html, part
 
 
 def test_last_fetch_ignores_simulated_runs(tmp_path):
