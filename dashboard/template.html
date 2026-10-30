@@ -66,20 +66,12 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 .chip { background: var(--s); color: var(--s-ink); }
 
 /* volume signal: the status colour is the message */
-.signal { padding: 0; overflow: hidden; display: grid; }
-.signal .hero { background: var(--s); color: var(--s-ink); padding: 16px 18px 18px; display: grid; gap: 4px; }
+.signal { padding: 0; overflow: hidden; display: grid; background: var(--s); border-color: transparent; }
+.signal .hero { background: var(--s); color: var(--s-ink); padding: 18px 20px; display: grid; gap: 6px; align-content: center; }
 .signal .hero .eyebrow { color: inherit; opacity: .8; }
-.signal .word { font: 700 40px/1 var(--sans); letter-spacing: .02em; text-transform: uppercase; }
-.signal .means { font-size: 16px; font-weight: 600; }
+.signal .word { font: 700 clamp(40px, 5vw, 60px)/1 var(--sans); letter-spacing: .02em; text-transform: uppercase; }
+.signal .means { font-size: 18px; font-weight: 600; }
 .signal .fig { font: 500 14px var(--mono); opacity: .92; }
-.signal .body { padding: 14px 18px 16px; display: grid; gap: 12px; }
-.signal .action { margin: 0; font-size: 14px; color: var(--ink); }
-.signal .action b { color: var(--ink-2); font-weight: 500; }
-.ladder { display: grid; gap: 4px; }
-.rung { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--ink-2); background: var(--surface-2); }
-.rung i { width: 12px; height: 12px; border-radius: 3px; background: var(--s); }
-.rung.on { outline: 2px solid var(--s); color: var(--ink); font-weight: 600; }
-.rung .mark { font: 600 12px var(--mono); color: var(--ink); }
 
 /* session strip */
 .strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(11px, 1fr)); gap: 3px; margin: 6px 0 8px; }
@@ -219,12 +211,6 @@ footer p { margin: 0; }
   const chip = (s) => `<span class="chip" data-s="${s}">${s}</span>`;
   const RANGES = { 7: "week", 30: "month", 90: "90 days", 365: "year" };
   const MEANS = { Green: "Normal activity", Amber: "Heavy activity", Red: "Very heavy activity", Pending: "Volume not final yet", Excluded: "Invalid volume, excluded" };
-  // the actions are METRICS.md M4 v1.2's own wording
-  const ACTION = {
-    Green: "No action. Volume is within 30% of its 20-session normal.",
-    Amber: "Note it on the dashboard. Check the ASX calendar for a known event (month end, index rebalance, derivatives expiry). Read it with the trend and volatility; no escalation on its own.",
-    Red: "Label the event on the chart and check whether a known calendar event explains it. If none does, or volatility is also elevated, add a short note for management.",
-    Pending: "Wait for the final volume after the next fetch.", Excluded: "A zero-volume session is a data error; it is left out of every baseline." };
 
   function slice(days) {
     const end = new Date(L.end + "T12:00:00"); const s = new Date(end); s.setDate(s.getDate() - (days - 1));
@@ -269,14 +255,10 @@ footer p { margin: 0; }
   $("tick1").innerHTML = tick; $("tick2").innerHTML = tick;
 
   const S0 = L.rag_status, pct = L.rag_pct;
-  const rung = (name, range, on) => `<div class="rung${on ? " on" : ""}" data-s="${name}"><i aria-hidden="true"></i><span>${name} · ${range}</span><span class="mark">${on ? sgn(pct, 0) + "% today" : ""}</span></div>`;
   $("signal").setAttribute("data-s", S0);
   $("signal").innerHTML = `<div class="hero"><div class="eyebrow">Volume signal · ${day(L.rag_date)}</div>
       <div class="word">${S0}</div><div class="means">${MEANS[S0]}</div>
-      <div class="fig">${sgn(pct, 0)}% against its 20-session normal</div></div>
-    <div class="body"><p class="action"><b>What to do:</b> ${ACTION[S0]}</p>
-      <div class="ladder" aria-label="Signal thresholds">${rung("Red", "+" + T.red + "% or more", S0 === "Red")}${rung("Amber", "+" + T.amber + "% to +" + T.red + "%", S0 === "Amber")}${rung("Green", "below +" + T.amber + "%", S0 === "Green")}</div>
-      <div class="sub" style="margin:0">Rule: METRICS.md M4 v1.2. The newest session is pending until its volume is final.</div></div>`;
+      <div class="fig">${sgn(pct, 0)}% against its 20-session normal</div></div>`;
 
   $("foot").innerHTML = `<p><b>Data sources.</b> ${D.sources.join(" ")}</p><p>Last fetch ${D.fetched} · page built ${D.built}</p>`;
 
