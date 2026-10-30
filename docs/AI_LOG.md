@@ -20,7 +20,7 @@ The log supports three rubric points: a specific example of incorrect or incompl
 ## Prompt iterations (Part 3)
 
 | Version | Prompt (verbatim) | What the output got wrong for the audience | Screenshot |
-| --- | --- | --- | --- |
+| v0 | agent-written baseline, see docs/prompts/dashboard_v0.md | --- | --- |
 
 ## Entries
 ### 2026-10-25 — Workflow file could not be parsed
