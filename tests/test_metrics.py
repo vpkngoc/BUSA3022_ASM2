@@ -62,3 +62,10 @@ def test_yield_change_uses_the_5th_previous_valid_observation():
     assert pd.isna(out["2026-10-05"])                              # blank RBA date: no change, no zero
     assert out["2026-10-06"] == pytest.approx((5.394 - 5.300) * 100)   # skips the blank date: 9.4 bp
     assert out["2026-10-07"] == pytest.approx((5.402 - 5.310) * 100)   # 9.2 bp
+
+
+def test_yield_change_is_stored_unrounded():
+    """METRICS.md v1.1: full precision in the data; 0.1 bp rounding is for display only."""
+    f2 = pd.DataFrame({"trade_date_syd": pd.bdate_range("2026-10-01", periods=6).strftime("%Y-%m-%d"),
+                       "value_pct": [5.0, 5.1, 5.2, 5.3, 5.4, 5.00004]})
+    assert add_yield_change_5obs(f2).yield_change_5obs_bp.iloc[-1] == pytest.approx(0.004, abs=1e-9)
