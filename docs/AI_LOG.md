@@ -21,6 +21,8 @@ The log supports three rubric points: a specific example of incorrect or incompl
 
 | Version | Prompt (verbatim) | What the output got wrong for the audience | Screenshot |
 | --- | --- | --- | --- |
+| v0 | Agent-written baseline, at the team's request: verbatim in `docs/prompts/dashboard_v0.md` | Ngoc's critique (Part 3 worksheet, 30 Oct): the insight was the page title instead of a separate takeaway; the as-at line was static and said "build time" instead of "last fetch"; the signal was text-heavy, with no good/bad colour and no visual of the session mix; tile and chart titles stated conclusions instead of describing, with no way to open the analysis; lines too thin; price was a plain line; the triggered-sessions table sat far from the volume chart and was uncoloured; notes were too long; light theme; no range choice | `docs/img/dashboard_v0.png` |
+| v1 | Written by Claude from Ngoc's critique, which is quoted verbatim in `docs/prompts/dashboard_v1.md` with his 30 Oct 19:08 message; Ngoc to confirm | (to be filled after the critique of v1) | `docs/img/dashboard_v1.png` |
 
 ## Entries
 ### 2026-10-25 — Workflow file could not be parsed

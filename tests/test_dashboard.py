@@ -47,5 +47,13 @@ def test_the_page_builds_from_the_committed_data():
         pytest.skip("no serve table committed yet")
     m = build.model(build._read(build.SERVE), build._read(CURATED / "au10y_daily.csv"))
     html = build.render(m)
-    assert m["summary"]["sessions"] > 50 and "/*__DATA__*/" not in html
+    assert m["summary_90d"]["sessions"] > 50 and "/*__DATA__*/" not in html
+    assert m["default_days"] == 90                                     # the brief's 90 days is the default range
+    assert len(m["rows"]) > 200                                        # one year of sessions for the 1Y button
     assert all(r["volume"] is None for r in m["rows"] if r["bar_status"] != "final")   # never a fake zero
+
+
+def test_last_fetch_ignores_simulated_runs(tmp_path):
+    log = tmp_path / "log.csv"
+    log.write_text("run_at_utc,simulated\n2026-10-29T14:25:14Z,False\n2026-10-30T02:00:00Z,True\n")
+    assert build.last_fetch(log) == "Fri 30 Oct 2026, 01:25 Sydney"

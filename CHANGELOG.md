@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-30 (Part 3, dashboard v1)
+- Prompt v1 (`docs/prompts/dashboard_v1.md`) from Ngoc's critique of v0: dark theme; general title with a takeaway box; running ticker with "last fetch"; 1W / 1M / 3M (default, the brief's 90 days) / 1Y range buttons; gauge and donut for the volume signal; ▲/▼ good/bad colour on changes; descriptive titles with "Show analysis"; baseline chart for price; triggered sessions beside the volume chart; correlation as an area plus a return-vs-yield-change scatter; notes list only the data sources.
+- The page now carries one year of sessions; range summaries are computed in the page. Prompt iterations logged in `docs/AI_LOG.md`.
+
 ## 2026-10-30 (Part 3, dashboard v0)
 - Dashboard v0 (`dashboard/`), built by the AI agent from its own reading of the brief as the baseline for reverse prompt engineering: prompt in `docs/prompts/dashboard_v0.md`, element list in `docs/prompts/dashboard_v0_elements.md`.
 - Output `docs/dashboard/index.html`, rebuilt by the nightly ingest workflow after each real run.
