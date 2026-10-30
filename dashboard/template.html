@@ -91,12 +91,12 @@ footer p { margin: 0; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Really Big Bank · Post-trade · Evening review</div>
-    <h1>ASX 200 and Australian 10-year yield market watch</h1>
-    <p class="lede">Market activity and long-term rates for the 6 pm post-trade review.</p>
+    <div class="eyebrow">· Market Move Monitor ·</div>
+    <h1>ASX 200 & Australian 10-year yield market watch</h1>
+    <p class="lede">Market activity and long-term rates for post-trade review.</p>
   </header>
 
-  <section class="takeaway" aria-live="polite"><div class="eyebrow" id="tk-label">Takeaway</div><p id="takeaway"></p></section>
+  <section class="takeaway" aria-live="polite"><div class="eyebrow" id="tk-label">Highlights</div><p id="takeaway"></p></section>
 
   <div class="ticker" aria-label="Latest figures"><div class="ticker-track"><ul id="tick1"></ul><ul id="tick2" aria-hidden="true"></ul></div></div>
 
@@ -104,7 +104,6 @@ footer p { margin: 0; }
     <div class="seg" role="group" aria-label="Show the last">
       <button type="button" id="r7" data-days="7">1W</button><button type="button" id="r30" data-days="30">1M</button><button type="button" id="r90" data-days="90">3M</button><button type="button" id="r365" data-days="365">1Y</button>
     </div>
-    <span class="hint">3M is the brief's 90 days (default). Latest values do not change with the range.</span>
   </nav>
 
   <section class="row-a" aria-label="Signal and key figures">
@@ -125,7 +124,7 @@ footer p { margin: 0; }
 
   <section class="card">
     <div class="head"><h2>ASX 200 close against its start of period</h2></div>
-    <div class="sub">Index points. Green above, red below the close on the first day of the range; grey line is the 20-session average</div>
+    <div class="sub">Index points</div>
     <div class="key"><span><i style="background:var(--asx)"></i>Close</span><span><i style="background:var(--ink-2)"></i>20-session average</span><span><i class="sq" style="background:var(--up-wash)"></i>Above start</span><span><i class="sq" style="background:var(--down-wash)"></i>Below start</span></div>
     <div class="chart" id="c-price" role="img" aria-label="ASX 200 close as a baseline chart"></div>
     <details class="analysis"><summary>Show analysis</summary><p id="a-price"></p></details>
@@ -133,8 +132,8 @@ footer p { margin: 0; }
 
   <section class="pair">
     <div class="card">
-      <div class="head"><h2>Daily trading volume</h2></div>
-      <div class="sub">Yahoo index volume, for comparing days only; line is the 20-session normal</div>
+      <div class="head"><h2>ASX 200 Daily trading volume</h2></div>
+      <div class="sub">Yahoo index volume</div>
       <div class="key"><span><i class="sq" style="background:var(--bar)"></i>Normal day</span><span><i class="sq" style="background:var(--warning)"></i>Amber</span><span><i class="sq" style="background:var(--critical)"></i>Red</span><span><i style="background:var(--ink-2)"></i>20-session normal</span></div>
       <div class="chart" id="c-vol" role="img" aria-label="Daily volume with signal days highlighted"></div>
       <details class="analysis"><summary>Show analysis</summary><p id="a-vol"></p></details>
@@ -148,7 +147,7 @@ footer p { margin: 0; }
 
   <section class="card">
     <div class="head"><h2>Australian 10-year government bond yield</h2></div>
-    <div class="sub">% per year, plotted on each RBA date; the grey band is not yet published (RBA releases weekly, Fridays 2 pm)</div>
+    <div class="sub">% per year, RBA releases weekly, Fridays 2 pm</div>
     <div class="chart" id="c-yield" role="img" aria-label="Australian 10-year government bond yield"></div>
     <details class="analysis"><summary>Show analysis</summary><p id="a-yield"></p></details>
   </section>
