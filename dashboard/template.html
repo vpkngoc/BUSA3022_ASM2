@@ -1,0 +1,215 @@
+<title>ASX 200 Market Watch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: an evening review sheet. As-at strip, then the one signal (RAG) beside four
+   stat tiles, then four charts stacked on one shared 90-day date axis, then the detail. */
+:root {
+  --page: #f6f7f6;  --surface: #fdfdfc;  --ink: #0e1113;  --ink-2: #4c5258;  --muted: #858b90;
+  --grid: #e3e5e3;  --axis: #c4c8c6;  --border: rgba(14,17,19,.10);
+  --asx: #2a78d6;  --yield: #eb6834;  --bar: #b8c3cc;  --band: rgba(235,104,52,.10);
+  --good: #0ca30c;  --warning: #fab219;  --critical: #d03b3b;  --good-ink: #006300;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --page: #0f1112;  --surface: #181a1b;  --ink: #eef0ef;  --ink-2: #c0c5c8;  --muted: #8b9195;
+  --grid: #2a2d2e;  --axis: #3a3e40;  --border: rgba(255,255,255,.10);
+  --asx: #3987e5;  --yield: #d95926;  --bar: #4d5861;  --band: rgba(217,89,38,.16);
+  --good-ink: #0ca30c;  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --page: #0f1112;  --surface: #181a1b;  --ink: #eef0ef;  --ink-2: #c0c5c8;  --muted: #8b9195;
+  --grid: #2a2d2e;  --axis: #3a3e40;  --border: rgba(255,255,255,.10);
+  --asx: #3987e5;  --yield: #d95926;  --bar: #4d5861;  --band: rgba(217,89,38,.16);
+  --good-ink: #0ca30c;  color-scheme: dark; }
+
+body { background: var(--page); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px; }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(22px, 3.2vw, 30px); line-height: 1.2; font-weight: 600; margin: 4px 0 6px; text-wrap: balance; max-width: 30ch; }
+.dek { color: var(--ink-2); margin: 0; max-width: 70ch; }
+.asat { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 13px/1.5 var(--mono); color: var(--ink-2);
+  border-block: 1px solid var(--border); padding-block: 8px; }
+.asat b { color: var(--ink); font-weight: 500; }
+
+.top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 2fr); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; min-width: 0; }
+.rag { display: grid; gap: 8px; align-content: start; }
+.pill { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 28px; line-height: 1; }
+.pill i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.pill[data-s="Green"] i { background: var(--good); }  .pill[data-s="Amber"] i { background: var(--warning); }
+.pill[data-s="Red"] i { background: var(--critical); }  .pill[data-s="Pending"] i { background: var(--muted); }
+.rag p { margin: 0; color: var(--ink-2); }
+.rag .rule { font: 12px/1.5 var(--mono); color: var(--muted); }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 26px; font-weight: 600; line-height: 1.2; margin-top: 2px; }
+.tile .delta { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+
+.panels { display: grid; gap: 14px; }
+.panel h2 { font-size: 16px; font-weight: 600; margin: 0; text-wrap: balance; }
+.panel .sub { font-size: 13px; color: var(--ink-2); margin: 2px 0 6px; }
+.chart { width: 100%; height: 230px; }
+.key { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--ink-2); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.key i.sq { width: 10px; height: 10px; border-radius: 2px; }
+
+.watch table, .data table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.watch th, .watch td, .data th, .data td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.watch th, .data th { font-weight: 500; color: var(--ink-2); }
+td.num, th.num { text-align: right; }
+.scroll { overflow-x: auto; }
+details summary { cursor: pointer; font-weight: 600; }
+details summary:focus-visible, a:focus-visible { outline: 2px solid var(--asx); outline-offset: 2px; }
+.notes { font-size: 13px; color: var(--ink-2); display: grid; gap: 6px; }
+.notes p { margin: 0; max-width: 85ch; }
+a { color: var(--asx); }
+@media (max-width: 760px) { .top { grid-template-columns: minmax(0, 1fr); } .chart { height: 210px; } }
+@media (max-width: 420px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Really Big Bank · Post-trade · Evening market watch</div>
+    <h1 id="headline"></h1>
+    <p class="dek" id="dek"></p>
+  </header>
+  <div class="asat" id="asat"></div>
+
+  <section class="top" aria-label="Signal and key figures">
+    <div class="card rag" id="rag"></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="panels" aria-label="90-day charts on one date axis">
+    <div class="card panel"><h2 id="t-price"></h2><p class="sub">S&amp;P/ASX 200 close and its 20-session moving average, index points</p>
+      <div class="key"><span><i style="background:var(--asx)"></i>Close</span><span><i style="background:var(--ink-2)"></i>20-session average</span></div>
+      <div class="chart" id="c-price" role="img" aria-label="ASX 200 close and 20-session average, last 90 days"></div></div>
+    <div class="card panel"><h2 id="t-vol"></h2><p class="sub">Daily volume (Yahoo index volume, for comparison only) and its 20-session normal</p>
+      <div class="key"><span><i class="sq" style="background:var(--bar)"></i>Normal day</span><span><i class="sq" style="background:var(--warning)"></i>Amber</span><span><i class="sq" style="background:var(--critical)"></i>Red</span><span><i style="background:var(--ink-2)"></i>20-session normal</span></div>
+      <div class="chart" id="c-vol" role="img" aria-label="Daily volume with RAG days highlighted"></div></div>
+    <div class="card panel"><h2 id="t-yield"></h2><p class="sub">Australian Government 10-year bond yield by RBA date, % per year</p>
+      <div class="key"><span><i style="background:var(--yield)"></i>10-year yield</span><span><i class="sq" style="background:var(--band)"></i>Not yet published by the RBA</span></div>
+      <div class="chart" id="c-yield" role="img" aria-label="Australian 10-year government bond yield, last 90 days"></div></div>
+    <div class="card panel"><h2 id="t-corr"></h2><p class="sub">Rolling 20-session correlation between the daily ASX return and the same-day change in the 10-year yield</p>
+      <div class="chart" id="c-corr" role="img" aria-label="Rolling 20-session correlation between ASX returns and yield changes"></div></div>
+  </section>
+
+  <section class="card watch" aria-label="Sessions that triggered the signal">
+    <h2 style="font-size:16px;margin:0 0 6px">Sessions that triggered the volume signal</h2>
+    <div class="scroll"><table id="watch"></table></div>
+  </section>
+
+  <section class="card data">
+    <details><summary>All 90-day values (table view)</summary>
+      <div class="scroll" style="margin-top:10px"><table id="table"></table></div></details>
+  </section>
+
+  <footer class="notes" id="notes"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const S = D.summary, R = D.rows;
+  const $ = (id) => document.getElementById(id);
+  const fmt = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString("en-AU", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const sgn = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v), d);
+  const day = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
+  const dayY = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+
+  $("headline").textContent = D.text.headline;
+  $("dek").textContent = D.text.dek;
+  $("asat").innerHTML = [
+    `<span>Window <b>${dayY(S.start)} – ${dayY(S.end)}</b> (${S.sessions} sessions)</span>`,
+    `<span>ASX close <b>${day(S.end)}</b>${S.end_status === "final" ? "" : " (" + S.end_status + ")"}</span>`,
+    `<span>RBA yield as at <b>${day(S.yield_obs_date)}</b> (${S.yield_age} sessions old)</span>`,
+    `<span>Built <b>${D.built}</b></span>`].join("");
+
+  const ragText = { Green: "Volume is within its normal range.", Amber: "Volume is well above normal. Check for a known cause (index rebalance, expiry, news) before the next session.",
+    Red: "Volume is far above normal, or has been high three sessions in a row. Raise it at the morning post-trade stand-up.", Pending: "Volume for this session is not final yet." };
+  $("rag").innerHTML = `<div class="eyebrow">Watch signal · volume vs normal</div>
+    <div class="pill" data-s="${S.rag_status}"><i aria-hidden="true"></i>${S.rag_status}</div>
+    <p><b>${day(S.rag_date)}</b>: ${sgn(S.rag_pct, 0)}% against its 20-session normal. ${ragText[S.rag_status]}</p>
+    <p>Fired on ${S.fired_amber + S.fired_red} of ${S.sessions} sessions in the window: ${S.fired_amber} Amber, ${S.fired_red} Red.</p>
+    <p class="rule">Amber ≥ +30% · Red ≥ +60%, or Amber 3 sessions in a row · draft rule (M4), to be confirmed</p>`;
+
+  const tiles = [
+    ["ASX 200 close", fmt(S.close, 1), `${sgn(S.close_change_pct)}% over 90 days`],
+    ["Against its 20-session average", `${sgn(S.close_vs_ma20_pct)}%`, `average ${fmt(S.ma20, 1)} pts`],
+    ["20-session volatility", `${fmt(S.vol20, 1)}%`, `a year · 1-year median ${fmt(S.vol20_1y_median, 1)}%`],
+    ["10-year yield (as at 6 pm)", `${fmt(S.yield_asat, 2)}%`, `${sgn(S.yield_change_5obs_bp)} bp over 5 RBA days · dated ${day(S.yield_obs_date)}`]];
+  $("tiles").innerHTML = tiles.map(([l, v, d]) => `<div class="card tile"><div class="label">${l}</div><div class="value">${v}</div><div class="delta">${d}</div></div>`).join("");
+
+  ["price", "vol", "yield", "corr"].forEach((k) => { $("t-" + k).textContent = D.text["t_" + k]; });
+
+  $("watch").innerHTML = `<thead><tr><th>Session</th><th>Signal</th><th class="num">Volume vs normal</th></tr></thead><tbody>` +
+    (S.fired_dates.length ? S.fired_dates.slice().reverse().map((r) => `<tr><td>${dayY(r.trade_date_syd)}</td><td>${r.rag_status}</td><td class="num">${sgn(r.volume_vs_normal_pct, 0)}%</td></tr>`).join("")
+      : `<tr><td colspan="3">No session triggered the signal in this window.</td></tr>`) + `</tbody>`;
+
+  const cols = [["trade_date_syd", "Session", (v) => v], ["bar_status", "Bar", (v) => v], ["close_pts", "Close", (v) => fmt(v, 1)],
+    ["ma20_pts", "MA20", (v) => fmt(v, 1)], ["vol20_ann_pct", "Vol20 %", (v) => fmt(v, 1)], ["volume", "Volume", (v) => fmt(v)],
+    ["volume_vs_normal_pct", "vs normal %", (v) => sgn(v, 0)], ["rag_status", "Signal", (v) => v],
+    ["yield_same_day_pct", "10y (RBA date) %", (v) => fmt(v, 3)], ["yield_asat_pct", "10y as at %", (v) => fmt(v, 3)],
+    ["yield_asat_obs_date", "as-at date", (v) => v || "–"], ["yield_change_5obs_bp", "5-obs bp", (v) => sgn(v, 1)], ["corr20", "Corr20", (v) => sgn(v, 2)]];
+  $("table").innerHTML = `<thead><tr>${cols.map((c, i) => `<th class="${i > 1 ? "num" : ""}">${c[1]}</th>`).join("")}</tr></thead><tbody>` +
+    R.slice().reverse().map((r) => `<tr>${cols.map((c, i) => `<td class="${i > 1 ? "num" : ""}">${c[2](r[c[0]])}</td>`).join("")}</tr>`).join("") + `</tbody>`;
+
+  $("notes").innerHTML = D.text.notes.map((n) => `<p>${n}</p>`).join("");
+
+  const x = R.map((r) => r.trade_date_syd);
+  const xr = [S.start + " 00:00", S.end + " 23:59"];
+  function draw() {
+    const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+    const base = (yt, extra = {}) => ({
+      margin: { l: 56, r: 64, t: 6, b: 28 }, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+      font: { family: v("--sans"), size: 12, color: v("--ink-2") }, showlegend: false, hovermode: "x unified",
+      hoverlabel: { bgcolor: v("--surface"), bordercolor: v("--axis"), font: { color: v("--ink"), family: v("--sans") } },
+      xaxis: { type: "date", range: xr, rangebreaks: [{ bounds: ["sat", "mon"] }], showgrid: false, linecolor: v("--axis"),
+        tickformat: "%-d %b", ticks: "outside", tickcolor: v("--axis"), fixedrange: true },
+      yaxis: { title: { text: yt, font: { size: 11 } }, gridcolor: v("--grid"), zeroline: false, linecolor: v("--axis"), fixedrange: true, tickformat: ",~r" },
+      ...extra });
+    const cfg = { displayModeBar: false, responsive: true };
+    const endLabel = (xv, yv, text, color) => ({ x: xv, y: yv, text, xanchor: "left", xshift: 6, showarrow: false, font: { size: 11, color: v("--ink-2") } });
+    const lastOf = (key) => { for (let i = R.length - 1; i >= 0; i--) if (R[i][key] != null) return R[i]; return null; };
+
+    const lc = lastOf("close_pts"), lm = lastOf("ma20_pts");
+    Plotly.react("c-price", [
+      { x, y: R.map((r) => r.ma20_pts), name: "20-session average", mode: "lines", line: { color: v("--ink-2"), width: 1.5 }, hovertemplate: "%{y:,.1f}" },
+      { x, y: R.map((r) => r.close_pts), name: "Close", mode: "lines", line: { color: v("--asx"), width: 2 }, hovertemplate: "%{y:,.1f}" },
+    ], base("Index points", { annotations: [endLabel(lc.trade_date_syd, lc.close_pts, "Close"), endLabel(lm.trade_date_syd, lm.ma20_pts, "Avg")] }), cfg);
+
+    const barCol = R.map((r) => r.rag_status === "Red" ? v("--critical") : r.rag_status === "Amber" ? v("--warning") : v("--bar"));
+    const pend = R.filter((r) => r.volume == null && r.bar_status !== "final");
+    Plotly.react("c-vol", [
+      { x, y: R.map((r) => r.volume), type: "bar", name: "Volume", marker: { color: barCol }, customdata: R.map((r) => [r.volume_vs_normal_pct, r.rag_status]),
+        hovertemplate: "%{y:,.0f} · %{customdata[0]:+.0f}% vs normal · %{customdata[1]}<extra></extra>" },
+      { x, y: R.map((r) => r.volume_normal), name: "20-session normal", mode: "lines", line: { color: v("--ink-2"), width: 1.5 }, hovertemplate: "normal %{y:,.0f}<extra></extra>" },
+    ], base("Volume", { bargap: 0.25, yaxis: { ...base("").yaxis, title: { text: "Volume", font: { size: 11 } }, tickformat: "~s" },
+      annotations: pend.map((r) => ({ x: r.trade_date_syd, y: 0, yanchor: "bottom", text: "pending", textangle: -90, showarrow: false, font: { size: 10, color: v("--muted") } })) }), cfg);
+
+    const ly = lastOf("yield_same_day_pct");
+    const shapes = S.last_rba_date && S.last_rba_date < S.end ? [{ type: "rect", xref: "x", yref: "paper", x0: S.last_rba_date + " 12:00", x1: S.end + " 23:59", y0: 0, y1: 1, fillcolor: v("--band"), line: { width: 0 } }] : [];
+    Plotly.react("c-yield", [
+      { x, y: R.map((r) => r.yield_same_day_pct), name: "10-year yield", mode: "lines", connectgaps: false, line: { color: v("--yield"), width: 2 }, hovertemplate: "%{y:.3f}%<extra></extra>" },
+    ], base("% per year", { shapes, annotations: [ly && endLabel(ly.trade_date_syd, ly.yield_same_day_pct, fmt(ly.yield_same_day_pct, 2) + "%"),
+      shapes.length && { x: S.end, xref: "x", xanchor: "right", y: 1, yref: "paper", yanchor: "top", text: "awaiting RBA release", showarrow: false, font: { size: 10, color: v("--ink-2") } }].filter(Boolean) }), cfg);
+
+    Plotly.react("c-corr", [
+      { x, y: R.map((r) => r.corr20), name: "Correlation", mode: "lines", line: { color: v("--ink"), width: 2 }, hovertemplate: "%{y:+.2f}<extra></extra>" },
+    ], base("Correlation", { yaxis: { ...base("").yaxis, range: [-1, 1], dtick: 0.5, title: { text: "Correlation", font: { size: 11 } }, zeroline: true, zerolinecolor: v("--axis"), zerolinewidth: 1 },
+      annotations: [{ x: S.start, xanchor: "left", y: -0.95, yanchor: "bottom", text: "−1: shares fall when yields rise", showarrow: false, font: { size: 10, color: v("--muted") } },
+                    { x: S.start, xanchor: "left", y: 0.95, yanchor: "top", text: "+1: they move together", showarrow: false, font: { size: 10, color: v("--muted") } }] }), cfg);
+  }
+  draw();
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw); } catch (e) {}
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>

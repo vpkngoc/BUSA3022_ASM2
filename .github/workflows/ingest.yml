@@ -36,6 +36,10 @@ jobs:
       - name: Run pipeline
         run: python -m pipeline.run --simulate "${{ inputs.simulate || 'none' }}"
 
+      - name: Build dashboard (Part 3)
+        if: (inputs.simulate || 'none') == 'none'
+        run: python -m dashboard.build
+
       - name: Show run summary
         if: always()
         run: cat data/quality/last_run_summary.md >> "$GITHUB_STEP_SUMMARY"
@@ -45,7 +49,7 @@ jobs:
         run: |
           git config user.name "pipeline-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
+          git add data docs/dashboard
           git diff --cached --quiet || git commit -m "data: ingest run ${{ github.run_id }} (simulate=${{ inputs.simulate || 'none' }})"
           git pull --rebase --quiet && git push
 

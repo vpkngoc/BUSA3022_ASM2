@@ -38,6 +38,7 @@ pip install -r requirements.txt
 pytest -q
 python -m pipeline.run                   # Parts 1–2: download, check, store, then rebuild data/serve
 python -m pipeline.align                 # Part 2 only: rebuild data/serve/daily_panel.csv
+python -m dashboard.build                # Part 3: write docs/dashboard/index.html (open it in a browser)
 python -m pipeline.run --simulate late   # demo a failure: also 429 or schema
 ```
 

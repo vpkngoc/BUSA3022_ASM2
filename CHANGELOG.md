@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-30 (Part 3, dashboard v0)
+- Dashboard v0 (`dashboard/`), built by the AI agent from its own reading of the brief as the baseline for reverse prompt engineering: prompt in `docs/prompts/dashboard_v0.md`, element list in `docs/prompts/dashboard_v0_elements.md`.
+- Output `docs/dashboard/index.html`, rebuilt by the nightly ingest workflow after each real run.
+- Draft volume signal (M4: volume vs its 20-session normal, Green/Amber/Red/Pending), not yet in `docs/METRICS.md`; tests in `tests/test_dashboard.py`.
+
 ## 2026-10-29 (Part 2)
 - Metrics `ma20_pts`, `vol20_ann_pct`, `yield_change_5obs_bp` as defined by the team in `docs/METRICS.md` (commit 9831fb1) (`pipeline/metrics.py`).
 - Every session with no same-dated RBA yield is flagged `rba:DQ04` and left blank (METRICS.md, M3 edge cases).
