@@ -8,6 +8,9 @@
 - New RBA values are available from the file's publication time, not the download time (scheduled runs started 6–7 hours late on 26–28 Oct).
 - Data dictionary; serve-table contract tests enforce the modelling standards.
 
+## 2026-10-29 — Part 2 metric specification v1.1
+- Clarified the 6:00 pm Sydney review time, sample-standard-deviation convention for realised volatility, 0.1 bp display rounding for yield change, completed-session treatment, and benchmark interpretation. Confirmed that AI-assisted transformation code must follow the committed human-approved specification.
+
 ## 2026-10-25 (Part 1 fixes)
 - `late` and `schema` simulations replay the last good raw snapshot instead of calling the provider (the first `schema` demo on GitHub never reached the schema check because the RBA returned HTTP 403).
 - HTTP 403 is retried with backoff; two consecutive *stale* real runs now raise an alert, like two *late* runs.
