@@ -58,19 +58,42 @@ The log supports three rubric points: a specific example of incorrect or incompl
 - Fix and follow-up: fixed in `pipeline/store.py` before PR #2 was opened
 - Lesson / guardrail added: run the whole pipeline from an empty state before review, not just the unit tests
 
-### 2026-10-29 — Part 2 metric specification v1.1:
-Clarified the 6:00 pm Sydney review point, sample-standard-deviation convention for realised volatility, 0.1 bp display rounding for yield change, completed-session treatment, and metric benchmark interpretation. Confirmed that AI-assisted transformation code must follow the committed human-approved specification.
-- **Who noticed**: Maika (requirement and test design); gap confirmed by her test failing in CI
-- **Part: 2**
-- **What the AI-assisted implementation initially did:**
+### 2026-10-25 — Yahoo schema change stopped the run but was not logged
+- Who noticed: Maika (requirement and test design); gap confirmed by her test failing in CI
+- Part: 1 (pipeline)
+- What the AI-assisted implementation initially did:
   The initial parser correctly detected that the expected Yahoo `close` field was missing and raised a `SchemaError`.
-- **What was incomplete:**
+- What was incomplete:
   Although the schema change was detected, the exception occurred before the failure was recorded and quarantined under the required data-quality control. The pipeline therefore stopped correctly, but the failure was not yet fully observable or auditable.
-- **How we identified it:**
+- How we identified it:
   A controlled pytest deliberately replaced the expected `close` field with `close_changed`. Before the correction, the focused test run produced **1 failed and 1 passed**, showing that detection worked but the required logging and quarantine behaviour did not.
-- **Fix:**
+- Fix:
   The failure sequence was revised so the Yahoo schema change is logged and quarantined as DQ07 before the load stops. The correction was reviewed and merged through **PR #8**.
-- **Verification after the fix:**
+- Verification after the fix:
   Re-running the focused schema tests produced **2 passed**, and the full test suite subsequently produced **30 passed**.
-- **Lesson / guardrail:**
+- Lesson / guardrail:
   AI-generated validation code should not be accepted simply because it detects an error or raises an exception. Our tests must also verify the surrounding governance requirements, including logging, quarantine and auditability.
+
+### 2026-10-30
+- Who noticed: Claude
+- Part: 2 (curation)
+- What the agent produced: reading the age counts before review
+- What was wrong or incomplete: Said the yield was "1 session old" on the first two ASX dates, when its RBA date was older than the ASX history (should be unknown)
+- How we found it (test, hand check, review): review
+- Fix and follow-up (PR link): Age left blank when it cannot be counted
+- Lesson / guardrail added:
+
+### 2026-10-30
+- Who noticed: Claude
+- Part: 1 (pipeline)
+- What the agent produced: running the pipeline end to end from an empty folder: the guardrail from incident 1
+- What was wrong or incomplete: A run started during trading (12:20, 29 Oct) fed the half-finished session into MA20 and volatility
+- How we found it (test, hand check, review): review
+- Fix and follow-up (PR link): Bar labelled in_progress and left out of the metrics; a test added
+- Lesson / guardrail added:
+
+### 2026-10-30
+- PR #9 code rounded the yield change inside the calculation; writing v1.1 exposed it
+
+### 2026-10-30
+- made the code follow the spec
