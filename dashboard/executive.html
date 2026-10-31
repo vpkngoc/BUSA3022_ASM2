@@ -1,0 +1,197 @@
+<title>ASX 200 Market Watch · Executive view</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/*__COMMON_CSS__*/
+/* Executive view (prompt v4): one 16:9 screen, designed at 1920 x 1080, no vertical scroll.
+   Reading order: headline -> monitoring signal -> key indicators -> market evidence -> macro context
+   -> relationship evidence. Same data, calculations and thresholds as the detailed view (index.html). */
+html, body { margin: 0; height: 100%; }
+body { font-size: 14px; }
+.exec { box-sizing: border-box; height: 100vh; min-height: 760px; padding: 14px 18px;
+  display: grid; grid-template-rows: auto auto minmax(0, 1.08fr) minmax(0, 1fr); gap: 12px; }
+.card { padding: 10px 14px; }
+h1 { font-size: 22px; line-height: 1.15; font-weight: 600; margin: 2px 0 0; }
+h2 { font-size: 14px; font-weight: 600; margin: 0; }
+.lede { margin: 2px 0 8px; color: var(--ink-2); font-size: 13px; }
+.sub { font-size: 12px; color: var(--muted); margin: 1px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.controls .title { font: 600 12.5px var(--sans); }
+
+/* row 1 */
+.r1 { display: grid; grid-template-columns: 540px minmax(0, 1fr) 380px; gap: 12px; align-items: stretch; }
+.takeaway { background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 6px; padding: 10px 16px; display: grid; align-content: center; }
+.takeaway p { margin: 3px 0 0; font-size: 16px; line-height: 1.45; }
+.fresh { padding: 8px 12px; display: grid; gap: 3px; align-content: center; font-size: 12.5px; }
+.fresh div { display: flex; justify-content: space-between; gap: 10px; white-space: nowrap; }
+.fresh dt, .fresh .k { color: var(--muted); }
+.fresh .src { color: var(--muted); font-size: 11.5px; white-space: normal; }
+
+/* row 2: the RAG card dominates (about 27% of the width) */
+.r2 { display: grid; grid-template-columns: 27% minmax(0, 1fr); gap: 12px; }
+.signal { padding: 0; overflow: hidden; display: grid; background: var(--s); border-color: transparent; }
+.signal .hero { color: var(--s-ink); padding: 16px 20px; display: grid; gap: 6px; align-content: center; }
+.signal .hero .eyebrow { color: inherit; opacity: .8; }
+.signal .word { font: 700 64px/1 var(--sans); letter-spacing: .02em; text-transform: uppercase; }
+.signal .means { font-size: 19px; font-weight: 600; }
+.signal .fig { font: 500 14px var(--mono); opacity: .92; }
+.right { display: grid; gap: 10px; min-width: 0; }
+.strip { margin: 6px 0 6px; grid-template-columns: repeat(auto-fill, minmax(12px, 1fr)); }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpi { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 2px 18px; padding: 9px 14px; }
+.kpi .label { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-2); }
+.kpi .value { font-size: 25px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
+.kpi .delta { font-size: 13px; text-align: right; line-height: 1.4; }
+
+/* rows 3 and 4: charts fill the remaining height */
+.r3 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; min-height: 0; }
+.r4 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; min-height: 0; }
+.panel { display: flex; flex-direction: column; min-height: 0; }
+.panel .key { margin-top: 3px; }
+.chart { flex: 1; min-height: 0; width: 100%; overflow: hidden; }
+.vbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 12px; }
+.vbody .chart { height: 100%; }
+.mini { overflow: auto; min-height: 0; }
+.mini h3 { font: 600 12.5px var(--sans); margin: 4px 0 2px; }
+.mini table { font-size: 12.5px; }  .mini th, .mini td { padding: 5px 6px 5px 0; }
+
+/* smaller screens: the same panels flow down the page instead */
+@media (max-width: 1279px), (max-height: 699px) {
+  .exec { height: auto; min-height: 0; grid-template-rows: none; }
+  .r1, .r2, .r3, .r4 { grid-template-columns: minmax(0, 1fr); }
+  .chart { flex: none; height: 240px; }  .vbody { grid-template-columns: minmax(0, 1fr); }  .vbody .chart { height: 240px; }
+  .sub { white-space: normal; }  .kpis { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<main class="exec">
+  <header class="r1">
+    <div>
+      <div class="eyebrow">· Market Move Monitor · Executive view ·</div>
+      <h1>ASX 200 &amp; Australian 10-year yield market watch</h1>
+      <p class="lede">Market activity and long-term rates for post-trade review</p>
+      <div class="controls">
+        <span class="title" id="vp">View period</span>
+        <div class="seg small" role="group" aria-labelledby="vp">
+          <button type="button" data-days="7">1W</button><button type="button" data-days="30">1M</button><button type="button" data-days="90">3M</button><button type="button" data-days="365">1Y</button>
+        </div>
+        <a class="viewlink" href="./">Detailed view →</a>
+      </div>
+    </div>
+    <section class="takeaway" aria-live="polite"><div class="eyebrow" id="tk-label">Highlights</div><p id="takeaway"></p></section>
+    <section class="card fresh" aria-label="How current the data is" id="fresh"></section>
+  </header>
+
+  <section class="r2" aria-label="Volume signal and key figures">
+    <div class="card signal" id="signal"></div>
+    <div class="right">
+      <div class="card">
+        <div class="head"><h2>Sessions by signal</h2><span class="sub" id="mix-sub"></span></div>
+        <div class="strip" id="strip" role="img" aria-label="One cell per session, coloured by its volume signal"></div>
+        <div class="mixline" id="mixline"></div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+  </section>
+
+  <section class="r3" aria-label="Market evidence">
+    <div class="card panel">
+      <div class="head"><h2>ASX 200 close</h2>
+        <div class="seg small" role="group" aria-label="Price chart style"><button type="button" data-style="base">Baseline</button><button type="button" data-style="candle">Candles</button></div></div>
+      <div class="key" id="price-key"></div>
+      <div class="chart" id="c-price" role="img" aria-label="ASX 200 close with 20-session average"></div>
+    </div>
+    <div class="card panel">
+      <div class="head"><h2>ASX 200 Daily trading volume</h2><span class="sub">Evidence behind the signal</span></div>
+      <div class="key" id="vol-key"></div>
+      <div class="vbody">
+        <div class="chart" id="c-vol" role="img" aria-label="Daily volume with signal days highlighted"></div>
+        <div class="mini"><h3>Triggered sessions <span class="sub" id="trig-sub" style="display:inline"></span></h3>
+          <table><thead><tr><th>Session</th><th>Signal</th><th class="num">vs normal</th></tr></thead><tbody id="trig"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="r4" aria-label="Macro and relationship context">
+    <div class="card panel">
+      <h2>Australian 10-year government bond yield</h2>
+      <div class="sub">% per year · RBA releases weekly, Fridays 2 pm · grey = awaiting RBA release</div>
+      <div class="chart" id="c-yield" role="img" aria-label="Australian 10-year government bond yield"></div>
+    </div>
+    <div class="card panel">
+      <h2>How closely shares and yields move</h2>
+      <div class="sub" id="corr-sub"></div>
+      <div class="chart" id="c-corr" role="img" aria-label="Rolling correlation between ASX returns and yield changes"></div>
+    </div>
+    <div class="card panel">
+      <h2>Daily ASX return against the yield change</h2>
+      <div class="sub" id="sc-sub"></div>
+      <div class="chart" id="c-scatter" role="img" aria-label="Scatter of daily ASX returns against yield changes, teal fitted trend"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>/*__COMMON__*/</script>
+<script>
+(function () {
+  const { D, L, $, fmt, sgn, day, dm, delta, chip, CHANGE, RANGES, MEANS, provisional, slice, stats, text, draw, keys, triggeredRows, stripHtml, mixHtml } = MW;
+
+  // freshness: a provisional ASX session or a lagged RBA release must never look fully current
+  $("fresh").innerHTML = `
+    <div><span class="k">Latest completed signal</span><span>${day(L.rag_date)} ${chip(L.rag_status)}</span></div>
+    <div><span class="k">Latest ASX session</span><span>${day(L.end)} ${L.end_status === "final" ? "· final" : `<span class="chip" data-s="Pending">${L.end_status}</span> <span class="greyc">not yet in signal</span>`}</span></div>
+    <div><span class="k">Latest RBA yield observation</span><span>${day(L.yield_obs_date)} <span class="greyc">(${L.yield_age} session${L.yield_age === 1 ? "" : "s"} old)</span></span></div>
+    <div><span class="k">Last data fetch</span><span>${D.fetched.replace(" Sydney", "")}</span></div>
+    <div class="src">Sources: Yahoo Finance (^AXJO) · RBA Statistical Table F2 (FCMYGBAG10D)</div>`;
+
+  const S0 = L.rag_status;
+  $("signal").setAttribute("data-s", S0);
+  $("signal").innerHTML = `<div class="hero"><div class="eyebrow">Latest completed signal · ${day(L.rag_date)}</div>
+      <div class="word">${S0}</div><div class="means">${MEANS[S0]}</div>
+      <div class="fig">${sgn(L.rag_pct, 0)}% against its 20-session normal</div>${provisional ? `<div class="fig" style="opacity:.8">Latest ASX session ${day(L.end)}: ${L.end_status}, not yet included</div>` : ""}</div>`;
+  $("vol-key").innerHTML = keys.vol;
+
+  // KPI colour rules (prompt v4, section 5): only the ASX price change is green/red
+  const kpis = (S) => [
+    { label: "ASX 200 close", value: fmt(L.close, 1) + (L.end_status === "final" ? "" : ` <span class="chip" data-s="Pending" style="font-size:11px">${L.end_status}</span>`),
+      delta: `<span class="flat">${CHANGE[state]}</span> ${delta(S.chg, 1, "%", "market")}` },
+    { label: "Close vs 20-session average", value: delta(L.close_vs_ma20_pct, 1, "%"), delta: `<span class="tealc">average ${fmt(L.ma20, 1)} pts</span>` },
+    { label: "Volatility (20-session, annualised)", value: `${fmt(L.vol20, 1)}%`,
+      delta: `${delta(L.vol20 - L.vol20_1y_median, 1, " pts", "lower-better", ["Lower concern", "Higher concern"])}<br><span class="flat">vs 1-year median ${fmt(L.vol20_1y_median, 1)}%</span>` },
+    { label: "Australian 10-year yield", value: `${fmt(L.yield_asat, 2)}% <span class="flat" style="font-size:13px;font-weight:400">as at ${dm(L.yield_obs_date)}</span>`,
+      delta: `<span class="flat">Latest 5-RBA-day change</span> ${delta(L.yield_change_5obs_bp, 1, " bp", "yield")}<br><span class="flat">${CHANGE[state]}</span> ${delta(S.yBp, 0, " bp", "yield")}` }];
+
+  let state = D.default_days, style = "base";
+  function render() {
+    const R = slice(state), S = stats(R), label = RANGES[state];
+    for (const b of document.querySelectorAll("[data-days]")) b.setAttribute("aria-pressed", String(Number(b.dataset.days) === state));
+    for (const b of document.querySelectorAll("[data-style]")) b.setAttribute("aria-pressed", String(b.dataset.style === style));
+    $("tk-label").textContent = `Highlights · last ${label}`;
+    $("takeaway").innerHTML = text.highlights(S, state);
+    $("mix-sub").textContent = `${S.n} sessions, last ${label}`;
+    $("strip").innerHTML = stripHtml(R);
+    $("mixline").innerHTML = mixHtml(S);
+    $("kpis").innerHTML = kpis(S).map((k) => `<div class="card kpi"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="delta">${k.delta}</div></div>`).join("");
+    $("price-key").innerHTML = style === "candle" ? keys.candle : keys.base;
+    draw.price("c-price", R, S, style, true);
+    draw.volume("c-vol", R, true);
+    $("trig-sub").textContent = `· ${S.fired.length} in the last ${label}`;
+    $("trig").innerHTML = triggeredRows(S);
+    draw.yield("c-yield", R, S, true);
+    $("corr-sub").textContent = text.corrShort(S);
+    draw.corr("c-corr", R, true);
+    $("sc-sub").textContent = text.scatterShort(S);
+    draw.scatter("c-scatter", S, true);
+    // the period can change the height of rows 1-2 (e.g. a longer strip), so refit the charts to their panels
+    requestAnimationFrame(() => document.querySelectorAll(".chart").forEach((c) => Plotly.Plots.resize(c)));
+  }
+  for (const b of document.querySelectorAll("[data-days]")) b.addEventListener("click", () => { state = Number(b.dataset.days); render(); });
+  for (const b of document.querySelectorAll("[data-style]")) b.addEventListener("click", () => { style = b.dataset.style; render(); });
+  render();
+})();
+</script>

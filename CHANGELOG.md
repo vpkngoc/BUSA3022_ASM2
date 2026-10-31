@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-01 (Part 3, dashboard v4)
+- Prompt v4 (`docs/prompts/dashboard_v4.md`, supplied by Ngoc): a new one-screen 16:9 executive view, `docs/dashboard/executive.html` (designed at 1920 × 1080, no vertical scroll): header with title, period takeaway and freshness; the RAG card beside the session strip and four KPIs; ASX close and volume with the triggered sessions; yield, rolling correlation and scatter. The detailed scrollable view stays at `docs/dashboard/index.html`, and the two link to each other.
+- Both views are built from one shared stylesheet and script (`dashboard/common.css`, `dashboard/common.js`), so data, calculations, thresholds and wording cannot drift apart.
+- Colour system with three separate contexts: market direction (green up, red down: candles, ASX daily and period change); monitoring (Green/Amber/Red/grey: RAG card, strip, chips, volume bars, triggered sessions); analytical series (blue ASX, bluer teal `#16a6b6` for averages, normal and fitted line, true orange yield, purple correlation, grey for pending and awaiting RBA). Yield moves and the gap to the 20-session average are no longer judged by colour.
+- Grey dashed "awaiting RBA release" band; non-causal correlation notes; "association" in the scatter text; compact neutral ticker; selective table colours.
+- No change to data, calculations, thresholds, point-in-time logic or values.
+
 ## 2026-10-31 (Part 3, dashboard v3)
 - Prompt v3 (`docs/prompts/dashboard_v3.md`) from Maika's fresh-eyes review and `docs/STYLE_GUIDE.md`: arrow = direction, colour = interpretation (index, average and yield changes neutral; volatility green or red with "Lower/Higher concern"; volume vs normal in its RAG colour with "Amber"/"Red alert"); neutral baseline shading and hollow/filled candles; reference lines in teal, ASX blue shifted to keep them apart; every change labelled with its window; "Latest completed signal" vs "Latest ASX session … not yet included"; Maika's correlation wording, computed for the selected period.
 - The rolling correlation is blank on sessions whose RBA yield is not yet published.
