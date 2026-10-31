@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-31 (Part 3, dashboard v3)
+- Prompt v3 (`docs/prompts/dashboard_v3.md`) from Maika's fresh-eyes review and `docs/STYLE_GUIDE.md`: arrow = direction, colour = interpretation (index, average and yield changes neutral; volatility green or red with "Lower/Higher concern"; volume vs normal in its RAG colour with "Amber"/"Red alert"); neutral baseline shading and hollow/filled candles; reference lines in teal, ASX blue shifted to keep them apart; every change labelled with its window; "Latest completed signal" vs "Latest ASX session … not yet included"; Maika's correlation wording, computed for the selected period.
+- The rolling correlation is blank on sessions whose RBA yield is not yet published.
+
 ## 2026-10-30 (Part 3, dashboard v2)
 - Prompt v2 (`docs/prompts/dashboard_v2.md`) from Ngoc's critique of v1: navy theme with a new accent blue; blue ticker; "View period" label; one dense insight line under each "Show analysis"; the volume signal card leads with the RAG colour, its meaning and M4's action, with a threshold ladder; a session strip replaces the donut; aqua and violet lines instead of grey; optional candlestick view (not the default); the "awaiting RBA release" band in the yield's orange; Red days labelled on the volume chart.
 - The signal follows M4 as written in `docs/METRICS.md` v1.2: Red is +60% or more only (the draft three-Ambers-in-a-row rule is removed); a zero-volume session is Excluded, not Pending.

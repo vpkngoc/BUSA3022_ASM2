@@ -54,7 +54,7 @@ def test_the_page_builds_from_the_committed_data():
     assert len(m["rows"]) > 200                                        # one year of sessions for the 1Y button
     assert all(r["volume"] is None for r in m["rows"] if r["bar_status"] != "final")   # never a fake zero
     # guard against a merge silently bringing back an older layout (happened on 30 Oct)
-    for part in ('id="signal"', "View period", 'id="strip"', 'data-style="candle"'):
+    for part in ('id="signal"', "View period", 'id="strip"', 'data-style="candle"', "Latest completed signal", "Arrow = direction"):
         assert part in html, part
 
 
@@ -62,3 +62,12 @@ def test_last_fetch_ignores_simulated_runs(tmp_path):
     log = tmp_path / "log.csv"
     log.write_text("run_at_utc,simulated\n2026-10-29T14:25:14Z,False\n2026-10-30T02:00:00Z,True\n")
     assert build.last_fetch(log) == "Fri 30 Oct 2026, 01:25 Sydney"
+
+
+def test_correlation_is_blank_on_days_without_a_published_yield():
+    d = pd.bdate_range("2026-06-01", periods=30).strftime("%Y-%m-%d")
+    closes = [100 + (i % 3) for i in range(30)]
+    panel = pd.DataFrame({"trade_date_syd": d, "close_pts": closes, "bar_status": "final"})
+    f2 = pd.DataFrame({"trade_date_syd": d[:27], "value_pct": [4 + (i % 4) / 100 for i in range(27)]})   # last 3 unpublished
+    out = ind.add_corr20(panel, f2)
+    assert out.corr20.iloc[-3:].isna().all() and out.corr20.iloc[-4:-3].notna().all()

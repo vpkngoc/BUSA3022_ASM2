@@ -68,7 +68,10 @@ def add_corr20(panel: pd.DataFrame, f2: pd.DataFrame) -> pd.DataFrame:
     close = out["close_pts"].where(out["bar_status"] != "in_progress")
     out["asx_return_pct"] = np.log(close / close.shift(1)) * 100
     out["yield_change_1d_bp"] = out["trade_date_syd"].map(dy)
-    out["corr20"] = out["asx_return_pct"].rolling(CORR_SESSIONS, min_periods=CORR_MIN).corr(out["yield_change_1d_bp"])
+    corr = out["asx_return_pct"].rolling(CORR_SESSIONS, min_periods=CORR_MIN).corr(out["yield_change_1d_bp"])
+    # Only report the correlation on days that have their own pair: a window ending on a session whose
+    # RBA yield is not published yet would just be the previous window minus its oldest pair.
+    out["corr20"] = corr.where(out["asx_return_pct"].notna() & out["yield_change_1d_bp"].notna())
     return out
 
 
