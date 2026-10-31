@@ -1,0 +1,390 @@
+<title>ASX 200 Market Watch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a navy evening-review terminal. Title, takeaway, blue ticker, view period; then the
+   volume signal (status colour first) beside the session strip and four tiles; then charts on one
+   shared date axis. One theme by design (dark navy), so every colour is set explicitly. */
+:root {
+  color-scheme: dark;
+  --page: #0a1322;  --surface: #0f1a2e;  --surface-2: #15233d;  --ink: #eef2f8;  --ink-2: #b6c2d6;  --muted: #8090ab;
+  --grid: #1c2a45;  --axis: #2e3f60;  --border: rgba(140,170,230,.14);
+  --accent: #2f7bff;  --ticker: #1546a8;  --ticker-ink: #ffffff;
+  --asx: #3987e5;  --yield: #d95926;  --avg: #199e70;  --corr: #9085e9;  --bar: #34486b;
+  --band: rgba(217,89,38,.16);
+  --good: #0ca30c;  --warning: #fab219;  --critical: #d03b3b;  --pending: #5d6b84;
+  --up: #45d264;  --down: #ff7b7b;  --up-wash: rgba(12,163,12,.22);  --down-wash: rgba(208,59,59,.22);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+body { background: var(--page); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 18px; }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(22px, 3vw, 30px); line-height: 1.2; font-weight: 600; margin: 4px 0 2px; text-wrap: balance; }
+.lede { color: var(--ink-2); margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+h2 { font-size: 15px; font-weight: 600; margin: 0; }
+.sub { font-size: 12.5px; color: var(--muted); margin: 2px 0 8px; }
+
+.takeaway { background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 6px; padding: 12px 16px; }
+.takeaway p { margin: 4px 0 0; font-size: 16.5px; line-height: 1.45; max-width: 90ch; }
+
+.ticker { overflow: hidden; background: var(--ticker); border-radius: 6px; color: var(--ticker-ink); }
+.ticker-track { display: flex; width: max-content; animation: run 48s linear infinite; }
+.ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
+.ticker ul { display: flex; gap: 30px; list-style: none; margin: 0; padding: 10px 14px; padding-right: 30px; font: 13px/1.4 var(--mono); white-space: nowrap; }
+.ticker b { font-weight: 500; opacity: .78; margin-right: 6px; }
+.ticker .up { color: #9dffb1; } .ticker .down { color: #ffc2c2; }
+@keyframes run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; width: auto; } .ticker ul { flex-wrap: wrap; white-space: normal; gap: 6px 22px; }
+  .ticker ul[aria-hidden="true"] { display: none; } }
+
+.ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.ranges .title { font: 600 13px var(--sans); color: var(--ink); }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.seg button { font: 500 13px var(--mono); color: var(--ink-2); background: none; border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.seg.small button { padding: 4px 10px; font-size: 12px; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ranges .hint { font-size: 12.5px; color: var(--muted); }
+
+.row-a { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 2fr); gap: 14px; }
+.right { display: grid; gap: 14px; min-width: 0; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 26px; font-weight: 600; line-height: 1.2; margin-top: 2px; }
+.tile .delta { font-size: 13px; margin-top: 2px; }
+.up { color: var(--up); }  .down { color: var(--down); }  .flat { color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; font: 600 12px/1 var(--sans); padding: 4px 8px; border-radius: 999px; }
+[data-s="Green"] { --s: var(--good); --s-ink: #fff; }  [data-s="Amber"] { --s: var(--warning); --s-ink: #0b0b0b; }
+[data-s="Red"] { --s: var(--critical); --s-ink: #fff; }  [data-s="Pending"], [data-s="Excluded"] { --s: var(--pending); --s-ink: #fff; }
+.chip { background: var(--s); color: var(--s-ink); }
+
+/* volume signal: the status colour is the message */
+.signal { padding: 0; overflow: hidden; display: grid; background: var(--s); border-color: transparent; }
+.signal .hero { background: var(--s); color: var(--s-ink); padding: 18px 20px; display: grid; gap: 6px; align-content: center; }
+.signal .hero .eyebrow { color: inherit; opacity: .8; }
+.signal .word { font: 700 clamp(40px, 5vw, 60px)/1 var(--sans); letter-spacing: .02em; text-transform: uppercase; }
+.signal .means { font-size: 18px; font-weight: 600; }
+.signal .fig { font: 500 14px var(--mono); opacity: .92; }
+
+/* session strip */
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(11px, 1fr)); gap: 3px; margin: 6px 0 8px; }
+.strip span { aspect-ratio: 1; border-radius: 2px; background: var(--s); max-width: 100%; }
+.mixline { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mixline i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--s); }
+
+details.analysis { margin-top: 6px; }
+details.analysis summary { cursor: pointer; font-size: 12.5px; color: #6fa8ff; list-style: none; display: inline-block; }
+details.analysis summary::-webkit-details-marker { display: none; }
+details.analysis summary::before { content: "▸ "; }  details.analysis[open] summary::before { content: "▾ "; }
+details.analysis p { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--ink); max-width: 80ch; }
+.head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.chart { width: 100%; height: 260px; }
+.pair { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; }
+.pair.even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.key { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--ink-2); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }  .key i.sq { width: 10px; height: 10px; border-radius: 2px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { font-weight: 500; color: var(--ink-2); }  td.num, th.num { text-align: right; }
+.scroll { overflow-x: auto; }
+details.data summary { cursor: pointer; font-weight: 600; }
+footer { font-size: 12.5px; color: var(--muted); display: grid; gap: 4px; }
+footer p { margin: 0; }
+@media (max-width: 900px) { .row-a { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .pair, .pair.even { grid-template-columns: minmax(0, 1fr); } .chart { height: 230px; } }
+@media (max-width: 460px) { .tiles { grid-template-columns: minmax(0, 1fr); } .signal .word { font-size: 34px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">· Market Move Monitor ·</div>
+    <h1>ASX 200 &amp; Australian 10-year yield market watch</h1>
+    <p class="lede">Market activity and long-term rates for post-trade review.</p>
+  </header>
+
+  <section class="takeaway" aria-live="polite"><div class="eyebrow" id="tk-label">Highlights</div><p id="takeaway"></p></section>
+
+  <div class="ticker" aria-label="Latest figures"><div class="ticker-track"><ul id="tick1"></ul><ul id="tick2" aria-hidden="true"></ul></div></div>
+
+  <nav class="ranges" aria-labelledby="vp">
+    <span class="title" id="vp">View period</span>
+    <div class="seg" role="group" aria-labelledby="vp">
+      <button type="button" id="r7" data-days="7">1W</button><button type="button" id="r30" data-days="30">1M</button><button type="button" id="r90" data-days="90">3M</button><button type="button" id="r365" data-days="365">1Y</button>
+    </div>
+  </nav>
+
+  <section class="row-a" aria-label="Volume signal and key figures">
+    <div class="card signal" id="signal"></div>
+    <div class="right">
+      <div class="card">
+        <div class="head"><h2>Sessions by signal</h2><span class="sub" id="mix-sub" style="margin:0"></span></div>
+        <div class="strip" id="strip" role="img" aria-label="One cell per session, coloured by its volume signal"></div>
+        <div class="mixline" id="mixline"></div>
+        <details class="analysis"><summary>Show analysis</summary><p id="a-mix"></p></details>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>ASX 200 close</h2>
+      <div class="seg small" role="group" aria-label="Price chart style"><button type="button" id="st-base" data-style="base">Baseline</button><button type="button" id="st-candle" data-style="candle">Candles</button></div></div>
+    <div class="sub" id="price-sub"></div>
+    <div class="key" id="price-key"></div>
+    <div class="chart" id="c-price" role="img" aria-label="ASX 200 close"></div>
+    <details class="analysis"><summary>Show analysis</summary><p id="a-price"></p></details>
+  </section>
+
+  <section class="pair">
+    <div class="card">
+      <div class="head"><h2>ASX 200 Daily trading volume</h2></div>
+      <div class="sub">Yahoo index volume</div>
+      <div class="key"><span><i class="sq" style="background:var(--bar)"></i>Normal day</span><span><i class="sq" style="background:var(--warning)"></i>Amber</span><span><i class="sq" style="background:var(--critical)"></i>Red</span><span><i style="background:var(--avg)"></i>20-session normal</span></div>
+      <div class="chart" id="c-vol" role="img" aria-label="Daily volume with signal days highlighted"></div>
+      <details class="analysis"><summary>Show analysis</summary><p id="a-vol"></p></details>
+    </div>
+    <div class="card">
+      <div class="head"><h2>Sessions that triggered the signal</h2></div>
+      <div class="sub" id="trig-sub"></div>
+      <div class="scroll"><table id="trig"></table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Australian 10-year government bond yield</h2></div>
+    <div class="sub">% per year, RBA releases weekly, Fridays 2 pm</div>
+    <div class="chart" id="c-yield" role="img" aria-label="Australian 10-year government bond yield"></div>
+    <details class="analysis"><summary>Show analysis</summary><p id="a-yield"></p></details>
+  </section>
+
+  <section class="pair even">
+    <div class="card">
+      <div class="head"><h2>How closely shares and yields move</h2></div>
+      <div class="sub">Rolling 20-session correlation of the daily ASX return with that day's yield change (−1 to +1)</div>
+      <div class="chart" id="c-corr" role="img" aria-label="Rolling correlation between ASX returns and yield changes"></div>
+      <details class="analysis"><summary>Show analysis</summary><p id="a-corr"></p></details>
+    </div>
+    <div class="card">
+      <div class="head"><h2>Daily ASX return against the yield change</h2></div>
+      <div class="sub">One dot per session in the period; the aqua line is the fitted trend</div>
+      <div class="chart" id="c-scatter" role="img" aria-label="Scatter of daily ASX returns against yield changes"></div>
+      <details class="analysis"><summary>Show analysis</summary><p id="a-scatter"></p></details>
+    </div>
+  </section>
+
+  <section class="card">
+    <details class="data"><summary>All values in the period (table view)</summary>
+      <div class="scroll" style="margin-top:10px"><table id="table"></table></div></details>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const L = D.latest, ALL = D.rows, T = D.thresholds;
+  const $ = (id) => document.getElementById(id);
+  const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+  const MINUS = "−";
+  const fmt = (x, d = 0) => x == null ? "–" : Number(x).toLocaleString("en-AU", { minimumFractionDigits: d, maximumFractionDigits: d }).replace("-", MINUS);
+  const sgn = (x, d = 1) => x == null ? "–" : (x > 0 ? "+" : x < 0 ? MINUS : "") + fmt(Math.abs(x), d);
+  const day = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
+  const dm = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  const delta = (x, d, unit, good) => {      // good: +1 if a rise is good for the reader, -1 if bad
+    if (x == null) return `<span class="flat">–</span>`;
+    const cls = x === 0 ? "flat" : (x > 0) === (good > 0) ? "up" : "down";
+    return `<span class="${cls}">${x > 0 ? "▲" : x < 0 ? "▼" : "■"} ${fmt(Math.abs(x), d)}${unit}</span>`;
+  };
+  const chip = (s) => `<span class="chip" data-s="${s}">${s}</span>`;
+  const RANGES = { 7: "week", 30: "month", 90: "90 days", 365: "year" };
+  const MEANS = { Green: "Normal activity", Amber: "Heavy activity", Red: "Very heavy activity", Pending: "Volume not final yet", Excluded: "Invalid volume, excluded" };
+
+  function slice(days) {
+    const end = new Date(L.end + "T12:00:00"); const s = new Date(end); s.setDate(s.getDate() - (days - 1));
+    return ALL.filter((r) => r.trade_date_syd >= s.toISOString().slice(0, 10));
+  }
+  function pearson(xs, ys) {
+    const n = xs.length; if (n < 3) return null;
+    const mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+    let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+    return sxx && syy ? { r: sxy / Math.sqrt(sxx * syy), b: sxy / sxx, a: my - (sxy / sxx) * mx } : null;
+  }
+  function stats(R) {
+    const closes = R.filter((r) => r.close_pts != null), first = closes[0], last = closes[closes.length - 1];
+    const known = R.filter((r) => r.yield_same_day_pct != null);
+    const fired = R.filter((r) => r.rag_status === "Amber" || r.rag_status === "Red");
+    const count = (s) => R.filter((r) => r.rag_status === s).length;
+    const pairs = R.filter((r) => r.asx_return_pct != null && r.yield_change_1d_bp != null);
+    const pick = (arr, key, cmp) => arr.reduce((a, b) => (cmp(b[key], a[key]) ? b : a));
+    const corr = R.filter((r) => r.corr20 != null).map((r) => r.corr20);
+    return { R, first, last, n: R.length, chg: (last.close_pts / first.close_pts - 1) * 100,
+      hi: pick(closes, "close_pts", (a, b) => a > b), lo: pick(closes, "close_pts", (a, b) => a < b),
+      above: R.filter((r) => r.close_pts != null && r.ma20_pts != null && r.close_pts > r.ma20_pts).length,
+      yFirst: known[0], yLast: known[known.length - 1], yBp: known.length > 1 ? (known[known.length - 1].yield_same_day_pct - known[0].yield_same_day_pct) * 100 : null,
+      yHi: known.length ? pick(known, "yield_same_day_pct", (a, b) => a > b) : null,
+      fired, amber: count("Amber"), red: count("Red"), green: count("Green"), pending: count("Pending"), excluded: count("Excluded"),
+      top: fired.length ? pick(fired, "volume_vs_normal_pct", (a, b) => a > b) : null,
+      pairs, fit: pearson(pairs.map((r) => r.yield_change_1d_bp), pairs.map((r) => r.asx_return_pct)),
+      corrMin: corr.length ? Math.min(...corr) : null, corrMax: corr.length ? Math.max(...corr) : null, corrLast: corr.length ? corr[corr.length - 1] : null };
+  }
+
+  // ---------------------------------------------------------------- latest (independent of the period)
+  const prev = ALL.filter((r) => r.trade_date_syd < L.end && r.close_pts != null).slice(-1)[0];
+  const dayChg = prev ? (L.close / prev.close_pts - 1) * 100 : null;
+  const tick = [
+    `<b>ASX 200</b>${fmt(L.close, 1)} ${delta(dayChg, 2, "%", 1)}`,
+    `<b>vs 20-session avg</b>${delta(L.close_vs_ma20_pct, 1, "%", 1)}`,
+    `<b>Volatility</b>${fmt(L.vol20, 1)}%`,
+    `<b>10-yr yield</b>${fmt(L.yield_asat, 2)}% ${delta(L.yield_change_5obs_bp, 1, " bp", -1)} (RBA ${dm(L.yield_obs_date)})`,
+    `<b>Volume signal</b>${L.rag_status} (${dm(L.rag_date)})`,
+    `<b>Latest session</b>${day(L.end)}${L.end_status === "final" ? "" : " · " + L.end_status}`,
+    `<b>Last fetch</b>${D.fetched}`].map((t) => `<li>${t}</li>`).join("");
+  $("tick1").innerHTML = tick; $("tick2").innerHTML = tick;
+
+  const S0 = L.rag_status, pct = L.rag_pct;
+  $("signal").setAttribute("data-s", S0);
+  $("signal").innerHTML = `<div class="hero"><div class="eyebrow">Volume signal · ${day(L.rag_date)}</div>
+      <div class="word">${S0}</div><div class="means">${MEANS[S0]}</div>
+      <div class="fig">${sgn(pct, 0)}% against its 20-session normal</div></div>`;
+
+  $("foot").innerHTML = `<p><b>Data sources.</b> ${D.sources.join(" ")}</p><p>Last fetch ${D.fetched} · page built ${D.built}</p>`;
+
+  const lay = (extra = {}) => ({ margin: { l: 52, r: 18, t: 10, b: 30 }, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: v("--sans"), size: 12, color: v("--ink-2") }, showlegend: false,
+    hoverlabel: { bgcolor: v("--surface-2"), bordercolor: v("--axis"), font: { color: v("--ink"), family: v("--sans") } }, ...extra });
+  const cfg = { displayModeBar: false, responsive: true };
+  const yax = (t, extra = {}) => ({ title: { text: t, font: { size: 11, color: v("--muted") } }, gridcolor: v("--grid"), zeroline: false, linecolor: v("--axis"), fixedrange: true, ...extra });
+
+  const tileDefs = (S, label) => [
+    { label: "ASX 200 close", value: fmt(L.close, 1) + (L.end_status === "final" ? "" : ` <span class="chip" data-s="Pending" style="font-size:11px">${L.end_status}</span>`),
+      delta: `${delta(S.chg, 1, "%", 1)} <span class="flat">over the ${label}</span>`,
+      analysis: `${S.chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(S.chg), 1)}% over the ${label}; high ${fmt(S.hi.close_pts, 0)} (${dm(S.hi.trade_date_syd)}), low ${fmt(S.lo.close_pts, 0)} (${dm(S.lo.trade_date_syd)}).` },
+    { label: "Close vs 20-session average", value: delta(L.close_vs_ma20_pct, 1, "%", 1), delta: `<span class="flat">average ${fmt(L.ma20, 1)} pts</span>`,
+      analysis: `${L.close_vs_ma20_pct >= 0 ? "Above" : "Below"} its 20-session average (${sgn(L.close_vs_ma20_pct)}%): short-term trend ${L.close_vs_ma20_pct >= 0 ? "up" : "down"}; above it on ${S.above} of ${S.n} sessions.` },
+    { label: "Volatility", value: `${fmt(L.vol20, 1)}%`, delta: `${delta(L.vol20 - L.vol20_1y_median, 1, " pts", -1)} <span class="flat">vs 1-year median ${fmt(L.vol20_1y_median, 1)}%</span>`,
+      analysis: `${L.vol20 < L.vol20_1y_median ? "Calmer" : "Choppier"} than usual: ${fmt(L.vol20, 1)}% vs a 1-year median of ${fmt(L.vol20_1y_median, 1)}% (top fifth starts at ${fmt(L.vol20_1y_p80, 1)}%).` },
+    { label: "10-year yield", value: `${fmt(L.yield_asat, 2)}%`, delta: `${delta(L.yield_change_5obs_bp, 1, " bp", -1)} <span class="flat">over 5 RBA days · ${dm(L.yield_obs_date)}</span>`,
+      analysis: `${fmt(L.yield_asat, 2)}% as at ${dm(L.yield_obs_date)} (${L.yield_age} sessions old); ${sgn(L.yield_change_5obs_bp)} bp over 5 RBA days. Red = rising, which has tended to weigh on shares.` }];
+
+  // ---------------------------------------------------------------- period-dependent
+  let state = D.default_days, style = "base";
+  function render() {
+    const R = slice(state), S = stats(R), label = RANGES[state];
+    for (const b of document.querySelectorAll("[data-days]")) b.setAttribute("aria-pressed", String(Number(b.dataset.days) === state));
+    for (const b of document.querySelectorAll("[data-style]")) b.setAttribute("aria-pressed", String(b.dataset.style === style));
+    $("tk-label").textContent = `Highlights · last ${label}`;
+    const yPart = S.yBp == null ? "no new RBA yields were published in this period" :
+      `the 10-year yield ${S.yBp >= 0 ? "rose" : "fell"} ${fmt(Math.abs(S.yBp), 0)} bp (RBA data to ${dm(S.yLast.trade_date_syd)})`;
+    $("takeaway").innerHTML = `Over the last ${label} the ASX 200 ${S.chg >= 0 ? "rose" : "fell"} <b>${fmt(Math.abs(S.chg), 1)}%</b> while ${yPart}. ` +
+      `Volume ran well above normal on <b>${S.amber + S.red} of ${S.n}</b> sessions; the latest final session is <b>${L.rag_status}</b>.`;
+
+    $("tiles").innerHTML = tileDefs(S, label).map((t) => `<div class="card tile"><div class="label">${t.label}</div><div class="value">${t.value}</div><div class="delta">${t.delta}</div>` +
+      `<details class="analysis"><summary>Show analysis</summary><p>${t.analysis}</p></details></div>`).join("");
+
+    const p100 = (k) => (S.n ? k / S.n * 100 : 0);
+    $("mix-sub").textContent = `${S.n} sessions, last ${label}`;
+    $("strip").innerHTML = R.map((r) => `<span data-s="${r.rag_status}" title="${dm(r.trade_date_syd)}: ${r.rag_status}${r.volume_vs_normal_pct == null ? "" : " (" + sgn(r.volume_vs_normal_pct, 0) + "%)"}"></span>`).join("");
+    const mix = [["Green", S.green], ["Amber", S.amber], ["Red", S.red], ["Pending", S.pending], ["Excluded", S.excluded]].filter((m) => m[0] !== "Excluded" || m[1]);
+    $("mixline").innerHTML = mix.map(([k, c]) => `<span data-s="${k}"><i></i>${k} ${c} (${fmt(p100(c), 0)}%)</span>`).join("");
+    $("a-mix").textContent = `${S.amber + S.red} of ${S.n} sessions flagged (${fmt(p100(S.amber + S.red), 0)}%): ${S.amber} Amber, ${S.red} Red` + (S.top ? `; biggest ${sgn(S.top.volume_vs_normal_pct, 0)}% on ${dm(S.top.trade_date_syd)}.` : ".");
+
+    const x = R.map((r) => r.trade_date_syd), xr = [x[0] + " 00:00", x[x.length - 1] + " 23:59"];
+    const xax = { type: "date", range: xr, rangebreaks: [{ bounds: ["sat", "mon"] }], showgrid: false, linecolor: v("--axis"), tickcolor: v("--axis"), ticks: "outside", tickformat: "%-d %b", fixedrange: true, rangeslider: { visible: false } };
+
+    // price: baseline (default) or candles
+    const base = S.first.close_pts, closes = R.map((r) => r.close_pts), flat = x.map(() => base);
+    const avg = { x, y: R.map((r) => r.ma20_pts), mode: "lines", line: { color: v("--avg"), width: 2.5 }, hovertemplate: "average %{y:,.1f}<extra></extra>" };
+    let traces, keys;
+    if (style === "base") {
+      traces = [{ x, y: flat, mode: "lines", line: { width: 0 }, hoverinfo: "skip" },
+        { x, y: closes.map((c) => (c == null ? null : Math.max(c, base))), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: v("--up-wash"), hoverinfo: "skip" },
+        { x, y: flat, mode: "lines", line: { width: 1, color: v("--axis") }, hoverinfo: "skip" },
+        { x, y: closes.map((c) => (c == null ? null : Math.min(c, base))), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: v("--down-wash"), hoverinfo: "skip" },
+        avg, { x, y: closes, mode: "lines", line: { color: v("--asx"), width: 3.5 }, hovertemplate: "close %{y:,.1f}<extra></extra>" }];
+      keys = `<span><i style="background:var(--asx)"></i>Close</span><span><i style="background:var(--avg)"></i>20-session average</span><span><i class="sq" style="background:var(--up-wash)"></i>Above start</span><span><i class="sq" style="background:var(--down-wash)"></i>Below start</span>`;
+      $("price-sub").textContent = "Index points";
+    } else {
+      const C = R.filter((r) => r.open_pts != null);
+      traces = [{ type: "candlestick", x: C.map((r) => r.trade_date_syd), open: C.map((r) => r.open_pts), high: C.map((r) => r.high_pts), low: C.map((r) => r.low_pts), close: C.map((r) => r.close_pts),
+        increasing: { line: { color: v("--good"), width: 1.5 }, fillcolor: v("--good") }, decreasing: { line: { color: v("--critical"), width: 1.5 }, fillcolor: v("--critical") }, hoverinfo: "x+y" }, avg];
+      keys = `<span><i class="sq" style="background:var(--good)"></i>Up day</span><span><i class="sq" style="background:var(--critical)"></i>Down day</span><span><i style="background:var(--avg)"></i>20-session average</span>`;
+      $("price-sub").textContent = "Index points";
+    }
+    $("price-key").innerHTML = keys;
+    Plotly.react("c-price", traces, lay({ hovermode: "x unified", xaxis: xax, yaxis: yax("Index points", { tickformat: ",.0f" }) }), cfg);
+    $("a-price").textContent = `${S.chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(S.chg), 1)}% since ${dm(S.first.trade_date_syd)}; ${L.close_vs_ma20_pct >= 0 ? "now above" : "now below"} its 20-session average (${sgn(L.close_vs_ma20_pct)}%); high ${fmt(S.hi.close_pts, 0)} on ${dm(S.hi.trade_date_syd)}, low ${fmt(S.lo.close_pts, 0)} on ${dm(S.lo.trade_date_syd)}.` +
+      (style === "candle" ? " Candles: the open equals the previous close for this index, so each body is the day's change; the wick is the intraday high–low range." : "");
+
+    // volume
+    const barCol = R.map((r) => v(r.rag_status === "Red" ? "--critical" : r.rag_status === "Amber" ? "--warning" : "--bar"));
+    const pend = R.filter((r) => r.volume == null);
+    const reds = R.filter((r) => r.rag_status === "Red");
+    Plotly.react("c-vol", [
+      { x, y: R.map((r) => r.volume), type: "bar", marker: { color: barCol }, customdata: R.map((r) => [r.volume_vs_normal_pct, r.rag_status]),
+        hovertemplate: "%{x|%-d %b}: %{y:,.0f} · %{customdata[0]:+.0f}% vs normal · %{customdata[1]}<extra></extra>" },
+      { x, y: R.map((r) => r.volume_normal), mode: "lines", line: { color: v("--avg"), width: 3 }, hovertemplate: "normal %{y:,.0f}<extra></extra>" },
+    ], lay({ bargap: 0.25, xaxis: xax, yaxis: yax("Volume", { tickformat: "~s" }),
+      annotations: pend.map((r) => ({ x: r.trade_date_syd, y: 0, yanchor: "bottom", text: "pending", textangle: -90, showarrow: false, font: { size: 10, color: v("--muted") } }))
+        .concat(reds.map((r) => ({ x: r.trade_date_syd, y: r.volume, yanchor: "bottom", text: `Red ${sgn(r.volume_vs_normal_pct, 0)}%`, showarrow: false, font: { size: 11, color: v("--ink") } }))) }), cfg);
+    $("a-vol").textContent = S.fired.length ? `Volume spiked on ${S.fired.length} sessions; ${S.red} reached Red, the largest ${sgn(S.top.volume_vs_normal_pct, 0)}% on ${dm(S.top.trade_date_syd)}. Latest final session ${sgn(L.rag_pct, 0)}% (${L.rag_status}).`
+      : `No spikes in the last ${label}; latest final session ${sgn(L.rag_pct, 0)}% (${L.rag_status}).`;
+    $("trig-sub").textContent = `${S.fired.length} in the last ${label}, newest first`;
+    $("trig").innerHTML = `<thead><tr><th>Session</th><th>Signal</th><th class="num">vs normal</th></tr></thead><tbody>` +
+      (S.fired.length ? S.fired.slice().reverse().map((r) => `<tr><td>${day(r.trade_date_syd)}</td><td>${chip(r.rag_status)}</td><td class="num"><span class="down">▲ ${fmt(r.volume_vs_normal_pct, 0)}%</span></td></tr>`).join("")
+        : `<tr><td colspan="3" class="flat">None in this period.</td></tr>`) + `</tbody>`;
+
+    // yield
+    const lastRba = S.yLast ? S.yLast.trade_date_syd : null, endD = x[x.length - 1];
+    const shapes = lastRba && lastRba < endD ? [{ type: "rect", xref: "x", yref: "paper", x0: lastRba + " 12:00", x1: endD + " 23:59", y0: 0, y1: 1, fillcolor: v("--band"), line: { width: 1, color: v("--yield"), dash: "dot" } }]
+      : (!lastRba ? [{ type: "rect", xref: "paper", yref: "paper", x0: 0, x1: 1, y0: 0, y1: 1, fillcolor: v("--band"), line: { width: 0 } }] : []);
+    Plotly.react("c-yield", [
+      { x, y: R.map((r) => r.yield_same_day_pct), mode: "lines+markers", connectgaps: false, line: { color: v("--yield"), width: 3 }, marker: { size: 5, color: v("--yield") }, hovertemplate: "%{x|%-d %b}: %{y:.3f}%<extra></extra>" },
+    ], lay({ xaxis: xax, yaxis: yax("% per year", { tickformat: ".2f" }), shapes,
+      annotations: shapes.length ? [{ x: 0.995, xref: "paper", xanchor: "right", y: 1, yref: "paper", yanchor: "top", text: "Awaiting RBA release", showarrow: false, font: { size: 11, color: v("--ink") } }] : [] }), cfg);
+    $("a-yield").textContent = S.yBp == null ? `No RBA yields published for this period yet; newest is ${fmt(L.yield_asat, 2)}% for ${dm(L.yield_obs_date)}.`
+      : `Yield ${S.yBp >= 0 ? "rose" : "fell"} ${fmt(Math.abs(S.yBp), 0)} bp to ${fmt(S.yLast.yield_same_day_pct, 2)}% (RBA data to ${dm(S.yLast.trade_date_syd)}); peak ${fmt(S.yHi.yield_same_day_pct, 2)}% on ${dm(S.yHi.trade_date_syd)}.`;
+
+    // correlation + scatter
+    Plotly.react("c-corr", [
+      { x, y: R.map((r) => r.corr20), mode: "lines", fill: "tozeroy", fillcolor: "rgba(144,133,233,.20)", line: { color: v("--corr"), width: 2.5 }, connectgaps: false, hovertemplate: "%{x|%-d %b}: %{y:+.2f}<extra></extra>" },
+    ], lay({ xaxis: xax, yaxis: yax("Correlation", { range: [-1, 1], dtick: 0.5, zeroline: true, zerolinecolor: v("--ink-2"), zerolinewidth: 1 }),
+      annotations: [{ x: 0.01, xref: "paper", xanchor: "left", y: -0.97, yanchor: "bottom", text: "below 0: shares fall when yields rise", showarrow: false, font: { size: 10, color: v("--muted") } },
+                    { x: 0.01, xref: "paper", xanchor: "left", y: 0.97, yanchor: "top", text: "above 0: they move together", showarrow: false, font: { size: 10, color: v("--muted") } }] }), cfg);
+    $("a-corr").textContent = S.corrLast == null ? "Too few paired days in this period for a 20-session correlation." :
+      `${S.corrMax < 0 ? "Shares usually fell when yields rose" : "The usual opposite move did not always hold"}: latest ${sgn(S.corrLast, 2)} (range ${sgn(S.corrMin, 2)} to ${sgn(S.corrMax, 2)}).`;
+    const P = S.pairs, F = S.fit, xs = P.map((r) => r.yield_change_1d_bp);
+    const sc = [{ x: xs, y: P.map((r) => r.asx_return_pct), mode: "markers", customdata: P.map((r) => dm(r.trade_date_syd)),
+      marker: { size: 9, color: v("--asx"), opacity: 0.9, line: { color: v("--surface"), width: 2 } }, hovertemplate: "%{customdata}: yield %{x:+.1f} bp, ASX %{y:+.2f}%<extra></extra>" }];
+    if (F) { const lo = Math.min(...xs), hi = Math.max(...xs); sc.push({ x: [lo, hi], y: [F.a + F.b * lo, F.a + F.b * hi], mode: "lines", line: { color: v("--avg"), width: 3 }, hoverinfo: "skip" }); }
+    Plotly.react("c-scatter", sc, lay({ margin: { l: 52, r: 18, t: 10, b: 40 },
+      xaxis: { title: { text: "Yield change that day (bp)", font: { size: 11, color: v("--muted") } }, gridcolor: v("--grid"), zeroline: true, zerolinecolor: v("--axis"), linecolor: v("--axis"), fixedrange: true },
+      yaxis: yax("ASX 200 return that day (%)", { zeroline: true, zerolinecolor: v("--axis") }),
+      annotations: F ? [{ x: 0.98, xref: "paper", xanchor: "right", y: 0.98, yref: "paper", yanchor: "top", text: `r = ${sgn(F.r, 2)} · n = ${P.length}`, showarrow: false, font: { size: 12, color: v("--ink") } }] : [] }), cfg);
+    $("a-scatter").textContent = F ? `r = ${sgn(F.r, 2)} over ${P.length} sessions: ${Math.abs(F.r) >= 0.3 ? (F.r < 0 ? "shares tended to fall on days the yield rose" : "shares and yields tended to rise together") : "only a weak link"}; each 1 bp rise went with ${sgn(F.b, 3)}% on the ASX.` : "Too few sessions with both figures in this period.";
+
+    const cols = [["Session", (r) => r.trade_date_syd], ["Bar", (r) => r.bar_status], ["Close", (r) => fmt(r.close_pts, 1)], ["Day %", (r) => delta(r.asx_return_pct, 2, "%", 1)],
+      ["MA20", (r) => fmt(r.ma20_pts, 1)], ["Vol20 %", (r) => fmt(r.vol20_ann_pct, 1)], ["Volume", (r) => r.volume == null ? r.rag_status.toLowerCase() : fmt(r.volume)],
+      ["vs normal", (r) => r.volume_vs_normal_pct == null ? "–" : sgn(r.volume_vs_normal_pct, 0) + "%"], ["Signal", (r) => chip(r.rag_status)],
+      ["10y (RBA date) %", (r) => fmt(r.yield_same_day_pct, 3)], ["10y as at %", (r) => fmt(r.yield_asat_pct, 3)], ["as-at date", (r) => r.yield_asat_obs_date || "–"],
+      ["5-obs bp", (r) => delta(r.yield_change_5obs_bp, 1, "", -1)], ["Corr20", (r) => sgn(r.corr20, 2)]];
+    $("table").innerHTML = `<thead><tr>${cols.map((c, i) => `<th class="${i > 1 ? "num" : ""}">${c[0]}</th>`).join("")}</tr></thead><tbody>` +
+      R.slice().reverse().map((r) => `<tr>${cols.map((c, i) => `<td class="${i > 1 ? "num" : ""}">${c[1](r)}</td>`).join("")}</tr>`).join("") + `</tbody>`;
+  }
+  for (const b of document.querySelectorAll("[data-days]")) b.addEventListener("click", () => { state = Number(b.dataset.days); render(); });
+  for (const b of document.querySelectorAll("[data-style]")) b.addEventListener("click", () => { style = b.dataset.style; render(); });
+  render();
+})();
+</script>

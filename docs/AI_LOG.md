@@ -20,7 +20,12 @@ The log supports three rubric points: a specific example of incorrect or incompl
 ## Prompt iterations (Part 3)
 
 | Version | Prompt (verbatim) | What the output got wrong for the audience | Screenshot |
-| v0 | agent-written baseline, see docs/prompts/dashboard_v0.md | --- | --- |
+| --- | --- | --- | --- |
+| v0 | Agent-written baseline, at the team's request: verbatim in `docs/prompts/dashboard_v0.md` | Ngoc's critique (Part 3 worksheet, 30 Oct): the insight was the page title instead of a separate takeaway; the as-at line was static and said "build time" instead of "last fetch"; the signal was text-heavy, with no good/bad colour and no visual of the session mix; tile and chart titles stated conclusions instead of describing, with no way to open the analysis; lines too thin; price was a plain line; the triggered-sessions table sat far from the volume chart and was uncoloured; notes were too long; light theme; no range choice | `docs/img/dashboard_v0.png` |
+| v1 | Written by Claude from Ngoc's critique, which is quoted verbatim in `docs/prompts/dashboard_v1.md` with his 30 Oct 19:08 message; Ngoc to confirm | Ngoc's critique (30 Oct 20:36, verbatim in `docs/prompts/dashboard_v2.md`): the ticker blended into the page; the blue theme needed another shade; the range buttons had no title; the hidden analysis was wordier than v0's punchy insight lines; the signal card did not lead with the RAG colour and its meaning; the donut took too much attention for a side visual; grey lines blended into the dark theme; candles not considered; the grey "awaiting RBA release" band | `docs/img/dashboard_v1.png` |
+| v2 | Written by Claude from Ngoc's critique of v1 and his M4 in `docs/METRICS.md` v1.2: `docs/prompts/dashboard_v2.md`; Ngoc to confirm | (to be filled after the critique of v2) | `docs/img/dashboard_v2.png`, `docs/img/dashboard_v2_candles_1m.png` |
+| v2 + edits | No prompt: Ngoc edited the wording directly (commits `908a3b1`, `e35f7d7`): "Market Move Monitor" eyebrow, "Highlights" instead of "Takeaway", shorter chart subtitles, shorter tile labels, the period hint removed | A human edit, not an agent output. His merge of the branch first restored the v1 layout; the v2 layout was put back with his wording, and a test now fails if the layout regresses | `docs/img/dashboard_v2_1.png` |
+| v2.2 | "get rid of this part" (Ngoc, 30 Oct 21:53, with a screenshot of the signal card's action text, threshold ladder and rule line) | The signal card was still text-heavy below the RAG colour; it now shows only the colour, status word, meaning and % | `docs/img/dashboard_v2_2.png` |
 
 ## Entries
 ### 2026-10-25 — Workflow file could not be parsed
