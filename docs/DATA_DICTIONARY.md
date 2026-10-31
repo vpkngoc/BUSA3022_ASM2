@@ -23,3 +23,19 @@
 | `dq_flags` | rule IDs | Quality flags carried from the clean tables, prefixed by source, e.g. `asx:DQ03`. `rba:DQ04` marks every session with no same-dated RBA yield: a blank RBA date (NSW Labour Day) or one not published yet | `config/dq_rules.yaml` |
 
 These rules are enforced by `tests/test_serve_contract.py` on the committed data in every pull request: names are `snake_case` with a unit suffix, one row per weekday session, review times carry the right Sydney offset, no session uses a yield published after its review, and the same-day yield is blank, and flagged `rba:DQ04`, exactly where the RBA has no value.
+
+## Dashboard fields (computed when the page is built)
+
+`python -m dashboard.build` reads the serve table above, adds the fields below (`dashboard/indicators.py`) and embeds one year of rows in both pages. Nothing here is written back to `data/`. The definition of the signal is the team's M4 in [`METRICS.md`](METRICS.md) v1.2.
+
+| Field | Unit | Meaning | Rule |
+| --- | --- | --- | --- |
+| `open_pts`, `high_pts`, `low_pts` | index points | Daily open, high and low, for the optional candle view only | `data/curated/asx200_daily.csv` |
+| `volume_normal` | as reported by Yahoo | Average of the previous 20 **final, positive** volumes, carried forward to days whose own volume is not final | `add_volume_vs_normal` |
+| `volume_vs_normal_pct` | % | Today's final volume against that normal. Blank when the volume is not final | `add_volume_vs_normal` |
+| `rag_status` | label | Green below +30%, Amber +30% to below +60%, Red +60% or more; **Pending** while the volume is not final; **Excluded** for a final bar with zero volume (invalid, not a quiet day). No run rule | `add_rag` (`AMBER_AT = 0.30`, `RED_AT = 0.60`) |
+| `asx_return_pct` | % | Daily log return of the close (in-progress bars left out) | `add_corr20` |
+| `yield_change_1d_bp` | basis points | Change in the same-dated RBA yield from the previous RBA date. Published days later, so for analysis only | `add_corr20` |
+| `corr20` | −1 to +1 | Rolling correlation of the two fields above over 20 sessions, with at least 15 pairs; blank on a day without its own pair (RBA value not published yet). Association, not causation | `add_corr20` |
+
+**Latest completed signal** is the newest session whose volume is final; the newest session is often still provisional, so the two dates can differ and both are shown. Period figures (change over the period, signal mix, correlation range, the scatter's r and slope) are computed in the page from these rows for the selected 1W, 1M, 3M (default, 90 calendar days) or 1Y view, by the same code in both views (`dashboard/common.js`). `analysis/evidence_pack.py` recomputes the 90-day figures in Python so the report can quote them.

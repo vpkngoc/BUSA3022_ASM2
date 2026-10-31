@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-01 (finalisation for submission)
+- `docs/ARCHITECTURE.md` with the layer diagram (`docs/architecture.mmd`, `docs/img/architecture.png`); `docs/DATA_USE.md` (RBA terms for Financial Data, attribution, not a benchmark; Yahoo terms not verified, production would use a licensed feed).
+- `analysis/evidence_pack.py` freezes the figures quoted in the report and video: `docs/evidence/figures_2026-10-30.md`.
+- `python -m dashboard.serve`: local preview that rebuilds and reloads on save.
+- Runbook Part 3, dashboard fields in the data dictionary, README status and links; `docs/.nojekyll` so GitHub Pages serves the pages as built; empty `notebooks/` removed.
+
 ## 2026-11-01 (Part 3, dashboard v4)
 - Prompt v4 (`docs/prompts/dashboard_v4.md`, supplied by Ngoc): a new one-screen 16:9 executive view, `docs/dashboard/executive.html` (designed at 1920 × 1080, no vertical scroll): header with title, period takeaway and freshness; the RAG card beside the session strip and four KPIs; ASX close and volume with the triggered sessions; yield, rolling correlation and scatter. The detailed scrollable view stays at `docs/dashboard/index.html`, and the two link to each other.
 - Both views are built from one shared stylesheet and script (`dashboard/common.css`, `dashboard/common.js`), so data, calculations, thresholds and wording cannot drift apart.

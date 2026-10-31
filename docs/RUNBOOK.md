@@ -113,3 +113,42 @@ Every row answers: *what could a manager know at 6:00 pm Sydney on this trading 
 ### Checks
 
 `tests/test_metrics.py` (formulas against hand calculations), `tests/test_align.py` (point in time, daylight saving, provisional bars) and `tests/test_serve_contract.py` (modelling standards on the real data) run on every pull request.
+
+## Part 3 — the dashboard
+
+### Where it is
+
+| View | File | Use it for |
+| --- | --- | --- |
+| Executive (16:9, one screen, designed for 1920 × 1080) | `docs/dashboard/executive.html` | The report, the presentation and the daily 30-second check |
+| Detailed (scrolls) | `docs/dashboard/index.html` | Investigation: full-size charts, "Show analysis", the row-level table |
+
+Online, once GitHub Pages is switched on (Settings → Pages → Deploy from a branch → `main`, folder `/docs`): `https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/` and `.../dashboard/executive.html`. The repository must be public, or on a plan that allows Pages for private repositories.
+
+### When it updates
+
+The ingest workflow rebuilds both pages after every real run and commits them with the data, so the published pages follow the pipeline. Simulated runs do not rebuild them.
+
+### Build or preview it on your computer
+
+```bash
+python -m dashboard.build     # writes both pages; open them in a browser
+python -m dashboard.serve     # http://localhost:8000/dashboard/ : rebuilds and reloads the tab when you save a change
+```
+
+Change the layout in `dashboard/template.html` (detailed) or `dashboard/executive.html`; change colours, wording or charts used by both in `dashboard/common.css` and `dashboard/common.js`; change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 4.
+
+### Read it
+
+| You see | It means | Do |
+| --- | --- | --- |
+| Large card Green | The latest **completed** session's volume was below +30% of its normal | Nothing |
+| Large card Amber | +30% to below +60% | As `docs/METRICS.md` M4 says: check the ASX calendar for a known event (month end, index rebalance, derivatives expiry) and read it with M1 and M2; no escalation on its own |
+| Large card Red | +60% or more | As M4 says: label the event; if no scheduled event explains it, or volatility (M2) is also elevated, add a short note for management |
+| Grey "provisional" next to the latest session | Its volume is not final yet, so it is not in the signal | Nothing; it is assessed on the next run |
+| Grey "Awaiting RBA release" on the yield chart | The RBA has not published those days yet (weekly, Fridays 2 pm) | Nothing; never fill it in |
+| "Last data fetch" more than one working day old | The pipeline has not run | Check Actions → ingest, and the issues list |
+
+### Checks
+
+`tests/test_dashboard.py` covers the thresholds, Pending and Excluded, the 90-day window, the correlation on unpublished days, and that both views build from the same data, script and thresholds (and that no older layout comes back after a merge).

@@ -1,0 +1,27 @@
+%%{init: {"theme": "neutral", "flowchart": {"curve": "basis", "nodeSpacing": 28, "rankSpacing": 46}}}%%
+flowchart LR
+  Y["<b>SOURCE</b><br/>Yahoo Finance ^AXJO<br/>daily bars, UTC instants"]
+  R["<b>SOURCE</b><br/>RBA Table F2, FCMYGBAG10D<br/>weekly, Fri 2 pm"]
+  GA(["<b>SCHEDULE</b><br/>GitHub Actions: ingest<br/>weekdays 07:17 UTC"])
+  F["<b>INGEST</b><br/>fetch with retry<br/>pipeline/http.py, ingest_*.py"]
+  RAW[("<b>RAW</b><br/>data/raw/ write-once<br/>snapshots + SHA-256 manifest")]
+  V{"<b>VALIDATE</b><br/>data contract<br/>DQ01-DQ08"}
+  Q[("<b>QUARANTINE</b><br/>data/quarantine/<br/>rejected rows, reasons")]
+  CUR[("<b>CURATED</b><br/>data/curated/<br/>Sydney dates, F2 vintages")]
+  DQ[("<b>QUALITY LOG</b><br/>data/quality/<br/>run log, events, summary")]
+  ISS(["<b>ALERT</b><br/>GitHub issue to the data owner<br/>stopped, or late/stale twice"])
+  T["<b>TRANSFORM</b><br/>metrics.py: MA20, Vol20, 5-obs yield<br/>align.py: yield as at 6 pm Sydney"]
+  S[("<b>SERVE</b><br/>data/serve/daily_panel.csv")]
+  D["<b>DASHBOARD</b><br/>dashboard/build.py<br/>volume signal M4, correlation"]
+  P(["<b>PUBLISH</b><br/>GitHub Pages docs/dashboard<br/>executive (16:9) + detailed"])
+  CI(["<b>CI</b><br/>tests on every pull request<br/>+ human approval"])
+  Y --> F
+  R --> F
+  GA --> F
+  F --> RAW --> V
+  V -- "pass" --> CUR
+  V -- "fail" --> Q
+  V -- "every rule fired" --> DQ
+  DQ -.-> ISS
+  CUR --> T --> S --> D --> P
+  CI -.-> T
