@@ -11,6 +11,8 @@ What the RBA's Copyright and Disclaimer Notice says (read 1 Nov 2026, <https://w
 - The RBA does **not** administer this data as a financial benchmark and does not recommend using it as one; the user carries the risk of any use.
 - The RBA may change or withdraw the data, its methods or its publication schedule without notice, and accepts no responsibility for its accuracy or completeness.
 
+The Notes sheet of the F2 workbook (`f02d.xlsx`, read 25 Oct 2026 for the blueprint) adds that the yields are "the RBA's assessment of closing bond yields", are "not financial benchmarks", are "intended for academic research purposes", and "may not be available in a timely manner, can be subject to revisions". A university proof of concept fits that purpose; a production use at the bank should be checked with the RBA or replaced by a licensed bond-yield feed.
+
 What this project does about it:
 
 | Term | How the project respects it |

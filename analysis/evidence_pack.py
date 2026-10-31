@@ -76,7 +76,16 @@ def part3(m: dict, days: int = 90) -> list[tuple[str, str]]:
         ("Rolling 20-session correlation", f"latest {corr.iloc[-1]:+.2f}, range {corr.min():+.2f} to {corr.max():+.2f}"),
         ("Scatter: daily ASX return vs same-day yield change", f"r = {r:+.2f}, n = {len(pairs)}, slope {b:+.3f} pp per +1 bp"),
         ("Thresholds (M4 v1.2)", f"Amber from +{m['thresholds']['amber']:.0f}%, Red from +{m['thresholds']['red']:.0f}% vs the previous 20 final volumes"),
+        ("Lead-lag check, 1 year: ASX return vs same-day / previous session's yield change", lead_lag(rows)),
     ]
+
+
+def lead_lag(rows: pd.DataFrame) -> str:
+    """Is the same-day pairing the right one? Compare with the previous session's yield change (blueprint open finding)."""
+    r = rows.dropna(subset=["asx_return_pct"]).assign(dy_prev=lambda d: d.yield_change_1d_bp.shift(1))
+    a, b = r.dropna(subset=["yield_change_1d_bp"]), r.dropna(subset=["dy_prev"])
+    return (f"r = {a.asx_return_pct.corr(a.yield_change_1d_bp):+.2f} (n = {len(a)}) vs "
+            f"r = {b.asx_return_pct.corr(b.dy_prev):+.2f} (n = {len(b)}): the same-day link is the stronger one")
 
 
 def table(rows):
