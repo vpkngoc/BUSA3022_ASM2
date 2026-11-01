@@ -62,6 +62,8 @@ Series colours should remain consistent:
 
 Green/Amber/Red used in the RAG signal must retain their defined monitoring meaning.
 
+> **Addendum, 1 Nov 2026 (dashboard prompt v4; drafted by Claude, for Maika to confirm or reword).** v4 keeps three colour contexts apart: **market direction** (green = the ASX price moved up, red = down; candles and the ASX daily or period change only, a convention rather than a judgement), **monitoring** (Green/Amber/Red/grey for the volume signal only) and **analytical series** (blue, teal, orange, purple, grey as above). Yield moves and the gap to the 20-session average stay neutral; volatility keeps "Lower/Higher concern".
+
 ## 5. Make thresholds explicit
 
 A RAG indicator must be based on documented thresholds rather than visual judgement.
