@@ -133,7 +133,7 @@ python -m dashboard.build     # writes the page; open it in a browser
 python -m dashboard.serve     # http://localhost:8000/dashboard/ : rebuilds and reloads the tab when you save a change
 ```
 
-Change the layout in `dashboard/template.html`; colours, wording and charts in `dashboard/common.css` and `dashboard/common.js` (both are inlined into the page); change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 4.
+Change the layout in `dashboard/template.html`; colours, wording and charts in `dashboard/common.css` and `dashboard/common.js` (both are inlined into the page); change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 3.
 
 ### Read it
 
