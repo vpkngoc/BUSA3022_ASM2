@@ -1,4 +1,4 @@
-/* Shared colour system for both views (docs/STYLE_GUIDE.md; prompt v4, section 13).
+/* Colour system (docs/STYLE_GUIDE.md; prompt v4, section 13).
    Market direction: green/red (candles, ASX daily change). Monitoring: green/amber/red/grey (RAG only).
    Analytical series: blue ASX, teal reference lines, orange yield, purple correlation, grey availability. */
 :root {
