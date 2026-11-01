@@ -5,7 +5,8 @@
 
 Reads data/serve/daily_panel.csv (Part 2), data/curated/au10y_daily.csv (daily yield changes)
 and data/quality/dq_run_log.csv (when the data was last fetched). Writes one self-contained
-HTML page (Plotly.js from a CDN). The page holds one year of sessions so the reader can switch
+HTML page (Plotly.js from a CDN) from template.html with common.css and common.js inlined.
+The page holds one year of sessions so the reader can switch
 between 1W, 1M, 3M (the brief's 90 days, the default) and 1Y; the range summaries are computed
 in the page from these rows.
 """
@@ -25,6 +26,7 @@ from . import indicators as ind
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / "docs" / "dashboard" / "index.html"
+VIEWS = {"index.html": "template.html"}   # output page -> template
 SERVE = CURATED.parent / "serve" / "daily_panel.csv"
 HISTORY_DAYS = 365          # the longest range button (1Y)
 ROW_COLS = ["trade_date_syd", "bar_status", "open_pts", "high_pts", "low_pts", "close_pts", "ma20_pts", "vol20_ann_pct", "volume", "volume_normal",
@@ -84,10 +86,13 @@ def model(panel: pd.DataFrame, f2: pd.DataFrame, fetched: str | None = None,
             "summary_90d": {k: _clean(v) for k, v in s.items() if not isinstance(v, list)}}
 
 
-def render(m: dict) -> str:
-    """The page body (title, styles, markup, script) with the data embedded."""
+def render(m: dict, template: str = "template.html") -> str:
+    """The page body (title, styles, markup, script) with the shared code and the data embedded."""
     data = json.dumps(m, ensure_ascii=False, allow_nan=False).replace("</", "<\\/")
-    return (HERE / "template.html").read_text().replace("/*__DATA__*/", data)
+    return ((HERE / template).read_text()
+            .replace("/*__COMMON_CSS__*/", (HERE / "common.css").read_text())
+            .replace("/*__COMMON__*/", (HERE / "common.js").read_text().replace("</", "<\\/"))
+            .replace("/*__DATA__*/", data))
 
 
 def page(fragment: str) -> str:
@@ -102,13 +107,14 @@ def main(argv=None) -> int:
     ap.add_argument("--fragment", help="also write the page body only to this path")
     args = ap.parse_args(argv)
     m = model(_read(SERVE), _read(CURATED / "au10y_daily.csv"), last_fetch(), _read(CURATED / "asx200_daily.csv"))
-    body = render(m)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(page(body))
-    if args.fragment:
-        Path(args.fragment).write_text(body)
+    for name, template in VIEWS.items():
+        body = render(m, template)
+        (OUT.parent / name).write_text(page(body))
+        if args.fragment and name == "index.html":
+            Path(args.fragment).write_text(body)
     s = m["summary_90d"]
-    print(f"Dashboard built: {OUT.relative_to(HERE.parent)} | {len(m['rows'])} sessions (1 year) | default "
+    print(f"Dashboard built: {OUT.parent.relative_to(HERE.parent)}/{{{','.join(VIEWS)}}} | {len(m['rows'])} sessions (1 year) | default "
           f"{s['start']} to {s['end']} | signal {s['rag_status']} ({s['rag_date']}) | "
           f"fired {s['fired_amber']} Amber, {s['fired_red']} Red | last fetch {m['fetched']}")
     return 0

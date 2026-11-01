@@ -113,3 +113,39 @@ Every row answers: *what could a manager know at 6:00 pm Sydney on this trading 
 ### Checks
 
 `tests/test_metrics.py` (formulas against hand calculations), `tests/test_align.py` (point in time, daylight saving, provisional bars) and `tests/test_serve_contract.py` (modelling standards on the real data) run on every pull request.
+
+## Part 3 — the dashboard
+
+### Where it is
+
+One page, `docs/dashboard/index.html`: the takeaway and the volume signal at the top, then the charts, "Show analysis" under each, and the row-level table at the bottom.
+
+Online, once GitHub Pages is switched on (Settings → Pages → Deploy from a branch → `main`, folder `/docs`): `https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/`. The repository must be public, or on a plan that allows Pages for private repositories.
+
+### When it updates
+
+The ingest workflow rebuilds the page after every real run and commits them with the data, so the published page follows the pipeline. Simulated runs do not rebuild them.
+
+### Build or preview it on your computer
+
+```bash
+python -m dashboard.build     # writes the page; open it in a browser
+python -m dashboard.serve     # http://localhost:8000/dashboard/ : rebuilds and reloads the tab when you save a change
+```
+
+Change the layout in `dashboard/template.html`; colours, wording and charts in `dashboard/common.css` and `dashboard/common.js` (both are inlined into the page); change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 3.
+
+### Read it
+
+| You see | It means | Do |
+| --- | --- | --- |
+| Large card Green | The latest **completed** session's volume was below +30% of its normal | Nothing |
+| Large card Amber | +30% to below +60% | As `docs/METRICS.md` M4 says: check the ASX calendar for a known event (month end, index rebalance, derivatives expiry) and read it with M1 and M2; no escalation on its own |
+| Large card Red | +60% or more | As M4 says: label the event; if no scheduled event explains it, or volatility (M2) is also elevated, add a short note for management |
+| Grey "provisional" next to the latest session | Its volume is not final yet, so it is not in the signal | Nothing; it is assessed on the next run |
+| Grey "Awaiting RBA release" on the yield chart | The RBA has not published those days yet (weekly, Fridays 2 pm) | Nothing; never fill it in |
+| "Last data fetch" more than one working day old | The pipeline has not run | Check Actions → ingest, and the issues list |
+
+### Checks
+
+`tests/test_dashboard.py` covers the thresholds, Pending and Excluded, the 90-day window, the correlation on unpublished days, and that the page carries the shared script and the M4 thresholds (and that no older layout comes back after a merge).

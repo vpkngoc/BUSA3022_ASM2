@@ -1,0 +1,47 @@
+/* Shared colour system for both views (docs/STYLE_GUIDE.md; prompt v4, section 13).
+   Market direction: green/red (candles, ASX daily change). Monitoring: green/amber/red/grey (RAG only).
+   Analytical series: blue ASX, teal reference lines, orange yield, purple correlation, grey availability. */
+:root {
+  color-scheme: dark;
+  --page: #0a1322;  --surface: #0f1a2e;  --surface-2: #15233d;  --ink: #eef2f8;  --ink-2: #b6c2d6;  --muted: #8090ab;
+  --grid: #1c2a45;  --axis: #2e3f60;  --border: rgba(140,170,230,.14);
+  --accent: #2f7bff;
+  /* analytical series */
+  --asx: #3f73e8;  --avg: #16a6b6;  --yield: #e3742c;  --corr: #9085e9;  --bar: #34486b;
+  --above-wash: rgba(63,115,232,.24);  --below-wash: rgba(139,160,196,.16);
+  /* availability */
+  --pending: #6b7891;  --band: rgba(150,165,190,.14);  --band-edge: #8a97ad;
+  /* monitoring (RAG) and market direction */
+  --good: #0ca30c;  --warning: #fab219;  --critical: #cc3a5e;
+  --up: #3fd05c;  --down: #ff7a93;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+body { background: var(--page); color: var(--ink); font: 15px/1.5 var(--sans); }
+.up { color: var(--up); }  .down { color: var(--down); }  .flat { color: var(--ink-2); }  .neutral { color: var(--ink); }
+.amber { color: var(--warning); }  .yieldc { color: #f2a36a; }  .concern-low { color: var(--up); }  .concern-high { color: var(--down); }
+[data-s="Green"] { --s: var(--good); --s-ink: #fff; }  [data-s="Amber"] { --s: var(--warning); --s-ink: #0b0b0b; }
+[data-s="Red"] { --s: var(--critical); --s-ink: #fff; }  [data-s="Pending"], [data-s="Excluded"] { --s: var(--pending); --s-ink: #fff; }
+.chip { display: inline-flex; align-items: center; font: 600 12px/1 var(--sans); padding: 4px 8px; border-radius: 999px; background: var(--s); color: var(--s-ink); }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-width: 0; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.seg button { font: 500 13px var(--mono); color: var(--ink-2); background: none; border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.seg.small button { padding: 4px 10px; font-size: 12px; }
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(11px, 1fr)); gap: 3px; }
+.strip span { aspect-ratio: 1; border-radius: 2px; background: var(--s); max-width: 100%; }
+.mixline { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mixline i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--s); }
+.key { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--ink-2); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }  .key i.sq { width: 10px; height: 10px; border-radius: 2px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { font-weight: 500; color: var(--ink-2); }  td.num, th.num { text-align: right; }
+.viewlink { font: 500 12.5px var(--sans); color: #8db4ff; text-decoration: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; background: var(--surface); white-space: nowrap; }
+.viewlink:hover { border-color: var(--accent); }
+.tealc { color: #5fd0dc; }  .purplec { color: #b9b0f5; }  .greyc { color: var(--muted); }
+.ticker-word[data-s="Green"] { color: var(--up); }  .ticker-word[data-s="Amber"] { color: var(--warning); }
+.ticker-word[data-s="Red"] { color: var(--down); }  .ticker-word[data-s="Pending"], .ticker-word[data-s="Excluded"] { color: var(--muted); }
