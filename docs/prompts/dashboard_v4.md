@@ -2,6 +2,8 @@
 
 **Supplied by Ngoc on 1 Nov 2026 (00:32 Sydney) as the reference for the next version.** It is quoted verbatim below and was executed as written; it is the prompt for v4. Who drafted the text, and whether an AI tool helped, is for the team to record in `docs/AI_LOG.md` (the row for v4 leaves that field for Ngoc). It builds on Maika's v3 review (`docs/STYLE_GUIDE.md`) and changes one of its rules on purpose: the ASX price change is now green/red as a market-direction convention, not a judgement (section 6A below).
 
+> **Outcome (1 Nov 2026, 11:31):** Ngoc kept the detailed view as the final dashboard and asked for the executive view to be removed. The colour system from this prompt stays in the detailed view; `executive.html` was deleted. The screenshots `docs/img/dashboard_v4_executive*.png` remain as the record of this iteration.
+
 ## How Claude applied it (implementation notes, not part of the prompt)
 
 - Two pages from one build: `docs/dashboard/index.html` (detailed, scrollable) and `docs/dashboard/executive.html` (16:9, one screen). Both inline the same `dashboard/common.css` and `dashboard/common.js`, so the data, the range statistics, the chart code, the thresholds and the wording are shared, not copied. `dashboard/indicators.py` and the pipeline are unchanged; a test checks that both pages carry the same script and thresholds.

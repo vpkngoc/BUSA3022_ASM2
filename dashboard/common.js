@@ -1,5 +1,6 @@
-// Shared by the detailed and the executive view, so both use exactly the same data, calculations,
-// wording and colours. Inlined into each page by dashboard/build.py.
+// The dashboard's data handling, range statistics, wording, colours and charts.
+// (The `compact` options and short texts served the 16:9 executive view of prompt v4, removed on 1 Nov.)
+// Inlined into the page by dashboard/build.py.
 const MW = (function () {
   const D = JSON.parse(document.getElementById("data").textContent);
   const L = D.latest, ALL = D.rows, T = D.thresholds;
@@ -102,9 +103,9 @@ const MW = (function () {
       tickcolor: v("--axis"), ticks: "outside", tickformat: "%-d %b", fixedrange: true, rangeslider: { visible: false } }; };
 
   const keys = {
-    base: `<span><i style="background:var(--asx)"></i>Close</span><span><i style="background:var(--avg)"></i>Teal — 20-session average</span><span><i class="sq" style="background:var(--above-wash)"></i>Above start</span><span><i class="sq" style="background:var(--below-wash)"></i>Below start</span>`,
-    candle: `<span><i class="sq" style="background:var(--good)"></i>Green — Up day</span><span><i class="sq" style="background:transparent;border:1.5px solid var(--critical)"></i>Red — Down day</span><span><i style="background:var(--avg)"></i>Teal — 20-session average</span>`,
-    vol: `<span><i class="sq" style="background:var(--bar)"></i>Normal day</span><span><i class="sq" style="background:var(--warning)"></i>Amber</span><span><i class="sq" style="background:var(--critical)"></i>Red</span><span><i style="background:var(--avg)"></i>Teal — 20-session normal</span>`,
+    base: `<span><i style="background:var(--asx)"></i>Close</span><span><i style="background:var(--avg)"></i>20-session average</span><span><i class="sq" style="background:var(--above-wash)"></i>Above start</span><span><i class="sq" style="background:var(--below-wash)"></i>Below start</span>`,
+    candle: `<span><i class="sq" style="background:var(--good)"></i>Green — Up day</span><span><i class="sq" style="background:transparent;border:1.5px solid var(--critical)"></i>Red — Down day</span><span><i style="background:var(--avg)"></i>20-session average</span>`,
+    vol: `<span><i class="sq" style="background:var(--bar)"></i>Normal day</span><span><i class="sq" style="background:var(--warning)"></i>Amber</span><span><i class="sq" style="background:var(--critical)"></i>Red</span><span><i style="background:var(--avg)"></i>20-session normal</span>`,
   };
 
   const draw = {
@@ -129,7 +130,7 @@ const MW = (function () {
       const x = R.map((r) => r.trade_date_syd);
       const col = R.map((r) => v(r.rag_status === "Red" ? "--critical" : r.rag_status === "Amber" ? "--warning" : r.volume == null ? "--pending" : "--bar"));
       let reds = R.filter((r) => r.rag_status === "Red");
-      // compact (executive) view: on long periods label only the four largest Red sessions so labels stay legible
+      // compact layout: on long periods label only the four largest Red sessions so labels stay legible
       if (compact && reds.length > 4) reds = reds.slice().sort((a, b) => b.volume_vs_normal_pct - a.volume_vs_normal_pct).slice(0, 4);
       const pend = R.filter((r) => r.volume == null);
       Plotly.react(id, [

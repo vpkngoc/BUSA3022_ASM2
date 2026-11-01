@@ -2,7 +2,7 @@
 
 BUSA3022 Managing Analytics and Algorithmic Systems — Assessment 2, Analytics Lead Case Study (Really Big Bank, post-trade team).
 
-> **Status (1 Nov 2026):** all three proof-of-concept parts are built and tested. Part 1 pipeline (scheduled ingestion, raw/quarantine/curated storage, quality log, failure handling), Part 2 curation (the team's three metrics on one Sydney time axis, point in time), Part 3 dashboard (executive 16:9 view and detailed view, volume signal, macro overlay). Figures quoted in the report: [`docs/evidence/figures_2026-10-30.md`](docs/evidence/figures_2026-10-30.md).
+> **Status (1 Nov 2026):** all three proof-of-concept parts are built and tested. Part 1 pipeline (scheduled ingestion, raw/quarantine/curated storage, quality log, failure handling), Part 2 curation (the team's three metrics on one Sydney time axis, point in time), Part 3 dashboard (one page: volume signal, 90-day trend, macro overlay). Figures quoted in the report: [`docs/evidence/figures_2026-10-30.md`](docs/evidence/figures_2026-10-30.md).
 
 ## The business question
 
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 pytest -q
 python -m pipeline.run                   # Parts 1–2: download, check, store, then rebuild data/serve
 python -m pipeline.align                 # Part 2 only: rebuild data/serve/daily_panel.csv
-python -m dashboard.build                # Part 3: write docs/dashboard/index.html and executive.html
+python -m dashboard.build                # Part 3: write docs/dashboard/index.html
 python -m dashboard.serve                # Part 3: preview on http://localhost:8000/dashboard/ (reloads on save)
 python analysis/evidence_pack.py         # recompute the figures the report quotes
 python -m pipeline.run --simulate late   # demo a failure: also 429 or schema
@@ -56,8 +56,7 @@ Read the result in `data/quality/last_run_summary.md`. The full guide is [`docs/
 
 ## Links
 
-- Dashboard, executive view (16:9): <https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/executive.html>
-- Dashboard, detailed view: <https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/>
-  (live once GitHub Pages is switched on: Settings → Pages → `main`, `/docs`; until then open the files in `docs/dashboard/`)
+- Dashboard: <https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/>
+  (live once GitHub Pages is switched on: Settings → Pages → `main`, `/docs`; until then open `docs/dashboard/index.html`)
 - Report: *(submitted via iLearn/Turnitin)*
 - Presentation video: *TBC*

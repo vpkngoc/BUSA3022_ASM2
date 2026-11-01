@@ -26,7 +26,7 @@ These rules are enforced by `tests/test_serve_contract.py` on the committed data
 
 ## Dashboard fields (computed when the page is built)
 
-`python -m dashboard.build` reads the serve table above, adds the fields below (`dashboard/indicators.py`) and embeds one year of rows in both pages. Nothing here is written back to `data/`. The definition of the signal is the team's M4 in [`METRICS.md`](METRICS.md) v1.2.
+`python -m dashboard.build` reads the serve table above, adds the fields below (`dashboard/indicators.py`) and embeds one year of rows in the page. Nothing here is written back to `data/`. The definition of the signal is the team's M4 in [`METRICS.md`](METRICS.md) v1.2.
 
 | Field | Unit | Meaning | Rule |
 | --- | --- | --- | --- |
@@ -38,4 +38,4 @@ These rules are enforced by `tests/test_serve_contract.py` on the committed data
 | `yield_change_1d_bp` | basis points | Change in the same-dated RBA yield from the previous RBA date. Published days later, so for analysis only | `add_corr20` |
 | `corr20` | −1 to +1 | Rolling correlation of the two fields above over 20 sessions, with at least 15 pairs; blank on a day without its own pair (RBA value not published yet). Association, not causation | `add_corr20` |
 
-**Latest completed signal** is the newest session whose volume is final; the newest session is often still provisional, so the two dates can differ and both are shown. Period figures (change over the period, signal mix, correlation range, the scatter's r and slope) are computed in the page from these rows for the selected 1W, 1M, 3M (default, 90 calendar days) or 1Y view, by the same code in both views (`dashboard/common.js`). `analysis/evidence_pack.py` recomputes the 90-day figures in Python so the report can quote them.
+**Latest completed signal** is the newest session whose volume is final; the newest session is often still provisional, so the two dates can differ and both are shown. Period figures (change over the period, signal mix, correlation range, the scatter's r and slope) are computed in the page from these rows for the selected 1W, 1M, 3M (default, 90 calendar days) or 1Y view, by `dashboard/common.js`. `analysis/evidence_pack.py` recomputes the 90-day figures in Python so the report can quote them.

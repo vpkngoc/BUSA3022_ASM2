@@ -17,7 +17,7 @@ What this project does about it:
 
 | Term | How the project respects it |
 | --- | --- |
-| Attribution | The dashboard footer and freshness panel name the RBA and Table F2 as the source. The report should use "Source: RBA (2026)" under every figure that shows the yield |
+| Attribution | The dashboard footer names the RBA and Table F2 as the source; the yield chart and the ticker label the yield "RBA". The report should use "Source: RBA (2026)" under every figure that shows the yield |
 | Not a benchmark | The yield is context for ASX activity (an overlay and a correlation), never a pricing or performance benchmark, and never the trigger for the volume signal |
 | May change or be revised | Every new or changed value is kept with the time we first saw it (`data/curated/au10y_vintages.csv`); a changed value is logged as DQ08 |
 | Publication schedule may change | The release calendar only sets what we *expect*; a late file is logged as `late`, never filled in |

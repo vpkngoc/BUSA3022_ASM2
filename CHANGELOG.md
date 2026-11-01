@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-01 (final dashboard)
+- Ngoc chose the detailed view as the final dashboard (1 Nov, 11:31): the 16:9 executive view from prompt v4 is removed (`dashboard/executive.html`, `docs/dashboard/executive.html`) and the build writes one page again. The page itself is unchanged apart from removing its link to the executive view.
+- Ngoc's legend edits ("20-session average", "20-session normal", without "Teal —"), made in the built page, are now in `dashboard/common.js`, so the nightly rebuild keeps them.
+- Final screenshots: `docs/img/dashboard_final.png`, `docs/img/dashboard_final_candles_1m.png`.
+
 ## 2026-11-01 (finalisation for submission)
 - `docs/ARCHITECTURE.md` with the layer diagram (`docs/architecture.mmd`, `docs/img/architecture.png`); `docs/DATA_USE.md` (RBA terms for Financial Data, attribution, not a benchmark; Yahoo terms not verified, production would use a licensed feed).
 - `analysis/evidence_pack.py` freezes the figures quoted in the report and video: `docs/evidence/figures_2026-10-30.md`.

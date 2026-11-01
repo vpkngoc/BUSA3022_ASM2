@@ -118,25 +118,22 @@ Every row answers: *what could a manager know at 6:00 pm Sydney on this trading 
 
 ### Where it is
 
-| View | File | Use it for |
-| --- | --- | --- |
-| Executive (16:9, one screen, designed for 1920 × 1080) | `docs/dashboard/executive.html` | The report, the presentation and the daily 30-second check |
-| Detailed (scrolls) | `docs/dashboard/index.html` | Investigation: full-size charts, "Show analysis", the row-level table |
+One page, `docs/dashboard/index.html`: the takeaway and the volume signal at the top, then the charts, "Show analysis" under each, and the row-level table at the bottom.
 
-Online, once GitHub Pages is switched on (Settings → Pages → Deploy from a branch → `main`, folder `/docs`): `https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/` and `.../dashboard/executive.html`. The repository must be public, or on a plan that allows Pages for private repositories.
+Online, once GitHub Pages is switched on (Settings → Pages → Deploy from a branch → `main`, folder `/docs`): `https://vpkngoc.github.io/BUSA3022_ASM2/dashboard/`. The repository must be public, or on a plan that allows Pages for private repositories.
 
 ### When it updates
 
-The ingest workflow rebuilds both pages after every real run and commits them with the data, so the published pages follow the pipeline. Simulated runs do not rebuild them.
+The ingest workflow rebuilds the page after every real run and commits them with the data, so the published page follows the pipeline. Simulated runs do not rebuild them.
 
 ### Build or preview it on your computer
 
 ```bash
-python -m dashboard.build     # writes both pages; open them in a browser
+python -m dashboard.build     # writes the page; open it in a browser
 python -m dashboard.serve     # http://localhost:8000/dashboard/ : rebuilds and reloads the tab when you save a change
 ```
 
-Change the layout in `dashboard/template.html` (detailed) or `dashboard/executive.html`; change colours, wording or charts used by both in `dashboard/common.css` and `dashboard/common.js`; change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 4.
+Change the layout in `dashboard/template.html`; colours, wording and charts in `dashboard/common.css` and `dashboard/common.js` (both are inlined into the page); change a signal rule only in `dashboard/indicators.py`, and only after `docs/METRICS.md` changes. The colour rules are in `docs/STYLE_GUIDE.md` section 4.
 
 ### Read it
 
@@ -151,4 +148,4 @@ Change the layout in `dashboard/template.html` (detailed) or `dashboard/executiv
 
 ### Checks
 
-`tests/test_dashboard.py` covers the thresholds, Pending and Excluded, the 90-day window, the correlation on unpublished days, and that both views build from the same data, script and thresholds (and that no older layout comes back after a merge).
+`tests/test_dashboard.py` covers the thresholds, Pending and Excluded, the 90-day window, the correlation on unpublished days, and that the page carries the shared script and the M4 thresholds (and that no older layout comes back after a merge).

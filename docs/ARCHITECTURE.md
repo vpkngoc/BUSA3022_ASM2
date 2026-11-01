@@ -17,7 +17,7 @@ Drafted by Claude (AI agent) on 1 Nov 2026 from the code as built; the team chec
 | Quality log | `data/quality/` | Run log (status per source per run), events, a readable summary; an issue opens for the data owner when a load stops, or is late or stale twice | Hide a failure behind a green run |
 | Transform | `pipeline/metrics.py`, `pipeline/align.py` | The three metrics on the team's definitions (`docs/METRICS.md`); one Sydney time axis; the yield as known at the 6 pm review (point in time) | Use a yield before the RBA published it |
 | Serve | `data/serve/daily_panel.csv` | The one table the dashboard reads (contract tests in `tests/test_serve_contract.py`) | Change shape without a test failing |
-| Dashboard | `dashboard/` → `docs/dashboard/` | Volume signal (M4) and correlation; two views from shared code: executive (16:9) and detailed | Recalculate the Part 2 metrics |
+| Dashboard | `dashboard/` → `docs/dashboard/` | Volume signal (M4) and correlation; one page, rebuilt after every real run | Recalculate the Part 2 metrics |
 | CI | `.github/workflows/ci.yml` | Validates workflow files and runs every test on each pull request; a team member approves before merge | Merge on its own |
 
 ## Storage is separate from transformation

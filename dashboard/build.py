@@ -1,13 +1,12 @@
 """Build the Part 3 dashboard from the serve table.
 
-    python -m dashboard.build                       # writes docs/dashboard/index.html and executive.html
-    python -m dashboard.build --fragment out.html   # also writes the detailed page body only (for previews)
+    python -m dashboard.build                       # writes docs/dashboard/index.html
+    python -m dashboard.build --fragment out.html   # also writes the page body only (for previews)
 
 Reads data/serve/daily_panel.csv (Part 2), data/curated/au10y_daily.csv (daily yield changes)
-and data/quality/dq_run_log.csv (when the data was last fetched). Writes two self-contained
-HTML pages (Plotly.js from a CDN) from the same data, calculations and shared code
-(common.css, common.js): the scrollable detailed view (index.html) and the one-screen 16:9
-executive view (executive.html, prompt v4). The page holds one year of sessions so the reader can switch
+and data/quality/dq_run_log.csv (when the data was last fetched). Writes one self-contained
+HTML page (Plotly.js from a CDN) from template.html with common.css and common.js inlined.
+The page holds one year of sessions so the reader can switch
 between 1W, 1M, 3M (the brief's 90 days, the default) and 1Y; the range summaries are computed
 in the page from these rows.
 """
@@ -27,7 +26,7 @@ from . import indicators as ind
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / "docs" / "dashboard" / "index.html"
-VIEWS = {"index.html": "template.html", "executive.html": "executive.html"}   # output page -> template
+VIEWS = {"index.html": "template.html"}   # output page -> template
 SERVE = CURATED.parent / "serve" / "daily_panel.csv"
 HISTORY_DAYS = 365          # the longest range button (1Y)
 ROW_COLS = ["trade_date_syd", "bar_status", "open_pts", "high_pts", "low_pts", "close_pts", "ma20_pts", "vol20_ann_pct", "volume", "volume_normal",

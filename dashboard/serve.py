@@ -3,7 +3,7 @@
     python -m dashboard.serve              # build, serve docs/, rebuild + reload the browser on changes
     python -m dashboard.serve --port 8080
 
-Opens the same pages GitHub Pages publishes (docs/dashboard/index.html and executive.html).
+Opens the same page GitHub Pages publishes (docs/dashboard/index.html).
 It watches dashboard/*.html|css|js|py and data/serve/daily_panel.csv; when one changes it rebuilds
 and the open browser tab reloads itself. The reload script is added only to what this server
 sends, never to the files on disk. Stop with Ctrl+C. Standard library only.
@@ -83,7 +83,7 @@ def main(argv=None) -> int:
     threading.Thread(target=_watch, daemon=True).start()
     server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), functools.partial(Handler, directory=str(DOCS)))
     url = f"http://localhost:{args.port}/dashboard/"
-    print(f"Detailed view   {url}\nExecutive view  {url}executive.html\nCtrl+C to stop.")
+    print(f"Dashboard  {url}\nCtrl+C to stop.")
     if not args.no_browser:
         webbrowser.open(url)
     try:

@@ -58,22 +58,17 @@ def test_the_page_builds_from_the_committed_data():
         assert part in html, part
 
 
-def test_both_views_share_the_same_data_and_code():
-    """Prompt v4: the executive view is a second layout, not a second calculation."""
+def test_the_page_inlines_the_shared_code_and_the_m4_thresholds():
+    """One page (the executive view of prompt v4 was removed on 1 Nov): shared script inlined, thresholds unchanged."""
     if not (CURATED.parent / "serve" / "daily_panel.csv").exists():
         pytest.skip("no serve table committed yet")
     m = build.model(build._read(build.SERVE), build._read(CURATED / "au10y_daily.csv"))
-    detail, exec_ = build.render(m), build.render(m, "executive.html")
-    common = (build.HERE / "common.js").read_text().replace("</", "<\\/")
-    for html in (detail, exec_):
-        assert "/*__" not in html                                         # every placeholder filled
-        assert common in html                                             # one shared calculation/drawing script
-        assert '"thresholds": {"amber": 30.0, "red": 60.0}' in html        # M4 v1.2 thresholds unchanged
-    for part in ('id="signal"', 'id="strip"', 'id="kpis"', 'data-style="candle"', 'data-days="90"',
-                 'id="c-price"', 'id="c-vol"', 'id="trig"', 'id="c-yield"', 'id="c-corr"', 'id="c-scatter"', 'id="fresh"'):
-        assert part in exec_, part
-    assert 'href="executive.html"' in detail and 'href="./"' in exec_
-    assert "shares fall when yields rise" not in common                  # non-causal wording only
+    html = build.render(m)
+    assert "/*__" not in html                                             # every placeholder filled
+    assert (build.HERE / "common.js").read_text().replace("</", "<\\/") in html
+    assert '"thresholds": {"amber": 30.0, "red": 60.0}' in html            # M4 v1.2 thresholds unchanged
+    assert "executive.html" not in html and list(build.VIEWS) == ["index.html"]
+    assert "shares fall when yields rise" not in html                     # non-causal wording only
 
 
 def test_last_fetch_ignores_simulated_runs(tmp_path):
