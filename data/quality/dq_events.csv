@@ -321,3 +321,32 @@ run_id,source,record_key,rule_id,dimension,action,detail
 20261030T141523Z,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
 20261030T141523Z,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
 20261030T141523Z,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp
+20261102T170819Z,asx200,2026-11-02,DQ01,interpretability,reject,DQ01: no closing value
+20261102T170819Z,asx200,2026-11-02,DQ03,completeness,flag,volume=0
+20261102T170819Z,au10y,2013-08-05,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2013-10-07,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2014-08-04,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2014-10-06,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2015-08-03,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2015-10-05,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2016-08-01,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2016-10-03,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2017-08-07,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2017-10-02,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2018-08-06,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2018-10-01,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2019-10-07,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2020-10-05,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2021-08-02,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2021-10-04,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2022-10-03,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2023-10-02,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2024-10-07,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2025-10-06,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2026-10-05,DQ04,completeness,flag,no yield published for this date
+20261102T170819Z,au10y,2013-06-24,DQ05,accuracy,flag,move +28.2 bp
+20261102T170819Z,au10y,2016-11-10,DQ05,accuracy,flag,move +28.0 bp
+20261102T170819Z,au10y,2020-03-19,DQ05,accuracy,flag,move +27.2 bp
+20261102T170819Z,au10y,2020-03-20,DQ05,accuracy,flag,move -34.7 bp
+20261102T170819Z,au10y,2021-10-29,DQ05,accuracy,flag,move +25.0 bp
+20261102T170819Z,au10y,2022-06-14,DQ05,accuracy,flag,move +28.3 bp
