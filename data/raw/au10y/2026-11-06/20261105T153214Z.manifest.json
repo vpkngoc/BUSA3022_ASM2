@@ -1,0 +1,9 @@
+{
+  "source": "au10y",
+  "url": "https://www.rba.gov.au/statistics/tables/csv/f2-data.csv",
+  "run_id": "20261105T153214Z",
+  "fetched_at_utc": "2026-11-05T15:32:14Z",
+  "bytes": 201855,
+  "sha256": "8564e248506db7610497ede69f0a6f8b97a33467b6783e82a750f7b4d668da75",
+  "path": "data/raw/au10y/2026-11-06/20261105T153214Z.csv"
+}
