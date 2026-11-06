@@ -1,0 +1,2 @@
+epoch_s,observed_at_utc,trade_date_syd,local_time_syd,close,volume,reason
+1793919600,2026-11-05T23:00:00Z,2026-11-06,10:00,,0,DQ01: no closing value
